@@ -16,6 +16,10 @@
       {
         "command": "demo.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "demo.showWebview",
+        "title": "Show Webview Panel"
       }
     ]
   },
