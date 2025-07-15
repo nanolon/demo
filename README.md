@@ -1,285 +1,285 @@
-# TypeScript Demo Extension für VSCode
+# OOP Grundlagen für VSCode Extensions
 
-Eine umfassende Demonstration der wichtigsten TypeScript-Konzepte für VSCode Extension-Entwicklung, speziell entwickelt für Java-Entwickler mit Eclipse-Hintergrund.
+## 🎯 Lernziele
 
-## 🎯 Zweck und Lernziele
+Diese Extension demonstriert **4 zentrale OOP-Konzepte** für VSCode Extensions:
 
-Diese Extension ist ein **didaktisches Projekt** zur Vermittlung von TypeScript-Konzepten, die sich fundamental von Java unterscheiden. Sie demonstriert praxisrelevante TypeScript-Features im Kontext der VSCode Extension API.
+1. **Interface-basierte Services** (strukturelle Typisierung)
+2. **Abstrakte Basisklassen** (Template Method Pattern)  
+3. **Dependency Injection** (manuell, einfach)
+4. **Dispose-Pattern** (Ressourcen-Management)
 
-### Nach der Verwendung dieser Extension verstehen Sie:
+## 📊 Architektur-Überblick
 
-- **Strukturelle Typisierung** vs. Javas nominale Typisierung
-- **Typinferenz** und automatische Typableitung
-- **Union Types** für flexible APIs
-- **Asynchrone Programmierung** mit async/await
-- **Interface-basierte Konfiguration** mit optionalen Properties
-- **Generische Hilfsfunktionen** und Type Guards
-- **VSCode Extension Lifecycle** und Event-Handling
-
-## 🏗️ Architektur und TypeScript-Konzepte
-
-### 1. Strukturelle Typisierung
-
-```typescript
-interface CommandDefinition {
-    id: string;
-    title: string;
-    category?: string;
-}
-
-// Strukturell kompatibel - keine explizite Implementierung nötig
-const helloCommand: CommandDefinition = { 
-    id: 'demo.helloWorld', 
-    title: 'Hello World' 
-};
+```mermaid
+graph TB
+    subgraph "VSCode Extension"
+        A[extension.ts<br/>Entry Point] --> B[MessageService<br/>Singleton]
+        A --> C[HelloCommand]
+        A --> D[FileAnalyzeCommand]
+        
+        C --> E[BaseCommand<br/>Abstract]
+        D --> E
+        
+        C -.->|injected| B
+        D -.->|injected| B
+        
+        E -.->|uses| F[IMessageService<br/>Interface]
+        B -.->|implements| F
+    end
+    
+    subgraph "VSCode API"
+        G[vscode.commands]
+        H[vscode.window]
+    end
+    
+    A --> G
+    B --> H
+    
+    style A fill:#e1f5fe
+    style E fill:#f3e5f5
+    style F fill:#e8f5e8
+    style B fill:#fff3e0
 ```
 
-**Java-Unterschied:** TypeScript prüft die Objektstruktur, nicht die Klassenhierarchie. Ein Objekt ist kompatibel, wenn es die erforderlichen Properties besitzt.
+## 📁 Einfache Struktur
 
-### 2. Union Types und Typinferenz
-
-```typescript
-type MessageLevel = 'info' | 'warn' | 'error';
-
-const extensionState = {
-    isActive: false,    // TypeScript inferiert: boolean
-    commandCount: 0,    // TypeScript inferiert: number
-    lastCommand: 'none' as const  // Literal Type
-};
+```
+src/
+├── extension.ts                    # Entry Point mit DI
+├── services/
+│   └── MessageService.ts          # Interface + Implementierung
+└── commands/
+    ├── BaseCommand.ts              # Abstrakte Basisklasse
+    ├── HelloCommand.ts             # Einfacher Command
+    └── FileAnalyzeCommand.ts       # Command mit Business Logic
 ```
 
-**Java-Unterschied:** Union Types ermöglichen Variablen mit mehreren möglichen Typen. Typinferenz reduziert explizite Typangaben.
+## 🏗️ Klassendiagramm
 
-### 3. Asynchrone Programmierung
-
-```typescript
-async function saveAllOpenFiles(): Promise<number> {
-    let savedCount = 0;
-    for (const document of vscode.workspace.textDocuments) {
-        if (document.isDirty && !document.isUntitled) {
-            const success = await document.save(); // await statt .then()
-            if (success) savedCount++;
-        }
+```mermaid
+classDiagram
+    class IMessageService {
+        <<interface>>
+        +showInfo(message: string) void
+        +showError(message: string) void
     }
-    return savedCount;
-}
+    
+    class MessageService {
+        -messageCount: number
+        +showInfo(message: string) void
+        +showError(message: string) void
+        +getMessageCount() number
+        +dispose() void
+    }
+    
+    class BaseCommand {
+        <<abstract>>
+        #commandId: string
+        #messageService: IMessageService
+        -executionCount: number
+        +execute() void
+        #performAction() void*
+        +getId() string
+        +getExecutionCount() number
+    }
+    
+    class HelloCommand {
+        +constructor(messageService)
+        #performAction() void
+    }
+    
+    class FileAnalyzeCommand {
+        +constructor(messageService)
+        #performAction() void
+        -analyzeDocument(document) object
+    }
+    
+    IMessageService <|.. MessageService : implements
+    BaseCommand <|-- HelloCommand : extends
+    BaseCommand <|-- FileAnalyzeCommand : extends
+    BaseCommand ..> IMessageService : uses
+    
+    note for BaseCommand "Template Method Pattern:\nexecute() definiert Ablauf,\nperformAction() wird überschrieben"
+    note for IMessageService "Strukturelle Typisierung:\nImplementierung prüft\nObjektstruktur, nicht Typ"
 ```
 
-**Java-Unterschied:** async/await ist deutlich lesbarer als CompletableFuture und integriert sich nahtlos mit try/catch.
+## 🔄 Sequenzdiagramm: Command-Ausführung
 
-### 4. Interface-basierte Konfiguration
+```mermaid
+sequenceDiagram
+    participant User
+    participant VSCode
+    participant Extension as extension.ts
+    participant Cmd as HelloCommand
+    participant Base as BaseCommand
+    participant Svc as MessageService
+    
+    User->>VSCode: Ctrl+Shift+P "Demo: Hello OOP"
+    VSCode->>Extension: Command "demo.hello" triggered
+    Extension->>Cmd: execute()
+    Cmd->>Base: execute() (inherited)
+    
+    Note over Base: Template Method Pattern
+    Base->>Base: executionCount++
+    Base->>Base: console.log(...)
+    Base->>Base: try/catch wrapper
+    Base->>Cmd: performAction() (abstract)
+    
+    Note over Cmd: Konkrete Implementierung
+    Cmd->>Cmd: getExecutionCount()
+    Cmd->>Svc: showInfo("Hello from OOP...")
+    Svc->>Svc: messageCount++
+    Svc->>VSCode: vscode.window.showInformationMessage()
+    VSCode->>User: Notification erscheint
+```
+
+## 🔗 Modul-Dependencies
+
+```mermaid
+graph LR
+    subgraph "Services Layer"
+        MS[MessageService.ts]
+        IMS[IMessageService Interface]
+    end
+    
+    subgraph "Commands Layer"
+        BC[BaseCommand.ts]
+        HC[HelloCommand.ts]
+        FAC[FileAnalyzeCommand.ts]
+    end
+    
+    subgraph "Application Layer"
+        EXT[extension.ts]
+    end
+    
+    subgraph "VSCode API"
+        VSCODE[vscode module]
+    end
+    
+    HC --> BC
+    FAC --> BC
+    BC --> IMS
+    MS --> IMS
+    
+    EXT --> HC
+    EXT --> FAC
+    EXT --> MS
+    
+    MS --> VSCODE
+    EXT --> VSCODE
+    FAC --> VSCODE
+    
+    style MS fill:#fff3e0
+    style BC fill:#f3e5f5
+    style EXT fill:#e1f5fe
+    style VSCODE fill:#f5f5f5
+```
+
+## 🔧 Setup
+
+```bash
+# Ordner erstellen
+mkdir -p src/services src/commands
+
+# Code aus Artifact kopieren
+# Files: MessageService.ts, BaseCommand.ts, HelloCommand.ts, FileAnalyzeCommand.ts, extension.ts
+
+# Kompilieren und starten
+yarn compile && F5
+```
+
+## 🎮 Commands testen
+
+- `Demo: Hello OOP` - Einfacher Command mit Service
+- `Demo: Analyze File` - Editor-Analyse  
+- `Demo: Show Status` - Ausführungsstatistiken
+
+## 🔍 OOP-Konzepte im Detail
+
+### 1. Interface-basierte Services
 
 ```typescript
-interface ExtensionConfig {
-    readonly name: string;
-    userSettings: {
-        autoSave: boolean;
-        logLevel: MessageLevel;
-    };
-    features?: {  // Optional mit ?
-        experimentalMode: boolean;
-    };
+// Interface definiert Contract
+interface IMessageService {
+    showInfo(message: string): void;
+    showError(message: string): void;
+}
+
+// Klasse implementiert Interface (strukturell!)
+class MessageService implements IMessageService {
+    // Implementation...
 }
 ```
 
-**Java-Unterschied:** Optionale Properties mit `?`, Optional Chaining mit `?.` und Nullish Coalescing mit `??`.
+**Java-Unterschied:** TypeScript prüft strukturell, nicht nominal.
 
-### 5. Generische Funktionen und Type Guards
+### 2. Abstrakte Basisklasse (Template Method)
 
 ```typescript
-function getWorkspaceConfig<T>(section: string, key: string, defaultValue: T): T {
-    return vscode.workspace.getConfiguration(section).get<T>(key, defaultValue);
+abstract class BaseCommand {
+    public execute(): void {
+        // Template Method definiert Ablauf
+        this.performAction(); // Abstrakte Methode
+    }
+    
+    protected abstract performAction(): void;
 }
-
-function isTextEditor(obj: any): obj is vscode.TextEditor {
-    return obj && typeof obj.document === 'object';
-}
 ```
 
-**Java-Unterschied:** Type Guards bieten Typsicherheit zur Laufzeit. Generics mit automatischer Typinferenz.
+**Bekannt aus Java:** Gleiche Syntax, gleiche Semantik.
 
-## 🚀 Installation und Ausführung
+### 3. Dependency Injection (manuell)
 
-### Voraussetzungen
-- Node.js (Version 18+)
-- Visual Studio Code
-- Yarn oder npm
-
-### Setup
-```bash
-# Dependencies installieren
-yarn install
-
-# TypeScript kompilieren
-yarn compile
-
-# Extension im Development Mode starten
-# Drücken Sie F5 in VSCode oder:
-code --extensionDevelopmentPath=.
-```
-
-### Build und Watch Mode
-```bash
-# Kontinuierlicher Build bei Änderungen
-yarn watch
-
-# Einmalige Kompilierung
-yarn compile
-
-# Linting
-yarn lint
-```
-
-## 🎮 Verfügbare Commands
-
-Öffnen Sie die Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) und suchen Sie nach "Demo":
-
-| Command | Beschreibung | TypeScript-Konzept |
-|---------|--------------|-------------------|
-| `Demo: Hello World` | Grundlegende Message-Anzeige | Strukturelle Typisierung, Union Types |
-| `Demo: Save All Files` | Asynchrones Speichern aller geöffneten Dateien | async/await, Promise-Behandlung |
-| `Demo: Analyze Current File` | Analysiert die aktuelle Datei | Type Guards, Optional Chaining |
-| `Demo: Show Configuration` | Zeigt Workspace-Konfiguration | Generics, Typinferenz |
-| `Demo: Show Extension Stats` | Extension-Nutzungsstatistiken | State Management, Template Literals |
-| `Demo: Analyze File (Structural Example)` | Strukturelle Typisierung Demo | Strukturelle vs. nominale Typisierung |
-
-## ⚙️ Konfiguration
-
-Die Extension unterstützt verschiedene Workspace-Einstellungen in der `settings.json`:
-
-```json
-{
-    "demo.autoSave": true,
-    "demo.logLevel": "info",
-    "demo.maxFiles": 100,
-    "demo.logging": false,
-    "demo.extensions": ["ts", "js"],
-    "demo.experimental": {
-        "mode": false,
-        "debug": false
+```typescript
+// Service wird in Constructor injiziert
+class HelloCommand extends BaseCommand {
+    constructor(messageService: IMessageService) {
+        super('demo.hello', messageService);
     }
 }
+
+// In extension.ts: Services manuell erstellen und injizieren
+const messageService = new MessageService();
+const command = new HelloCommand(messageService);
 ```
 
-### Konfigurationsoptionen
+**Vereinfacht:** Kein Framework wie Spring, aber gleiches Prinzip.
 
-| Setting | Typ | Default | Beschreibung |
-|---------|-----|---------|--------------|
-| `demo.autoSave` | boolean | `true` | Automatisches Speichern aktivieren |
-| `demo.logLevel` | string | `"info"` | Log-Level: "info", "warn", "error" |
-| `demo.maxFiles` | number | `100` | Maximale Anzahl zu verarbeitender Dateien |
-| `demo.logging` | boolean | `false` | Logging aktivieren |
-| `demo.extensions` | string[] | `["ts", "js"]` | Zu berücksichtigende Dateierweiterungen |
-| `demo.experimental` | object | `{}` | Experimentelle Features |
+### 4. Dispose-Pattern
 
-## 📚 Code-Struktur und Lernpfad
-
-### Empfohlene Reihenfolge zum Studium:
-
-1. **Strukturelle Typisierung** (Zeilen 10-30)
-   - `CommandDefinition` Interface
-   - Strukturell kompatible Objekte
-   - `registerCommand` Hilfsfunktion
-
-2. **Union Types** (Zeilen 35-60)
-   - `MessageLevel` Type
-   - `showTypedMessage` Funktion
-   - Automatische Typinferenz
-
-3. **Async/Await** (Zeilen 65-95)
-   - `saveAllOpenFiles` Promise-Funktion
-   - `handleSaveAllCommand` mit Error-Handling
-   - VSCode API Integration
-
-4. **Interface-Konfiguration** (Zeilen 100-145)
-   - `ExtensionConfig` Interface
-   - Optional Properties
-   - Workspace-Integration
-
-5. **Generics und Type Guards** (Zeilen 150-190)
-   - Generische `getWorkspaceConfig` Funktion
-   - `isTextEditor` Type Guard
-   - Sichere API-Verwendung
-
-6. **Extension Integration** (Zeilen 195-Ende)
-   - Command Registry
-   - Event-Listener
-   - Lifecycle Management
-
-## 🔍 Praxisübungen
-
-### Übung 1: Command erweitern
-Fügen Sie einen neuen Command hinzu, der:
-- Die Anzahl der Zeichen im aktuellen Dokument zählt
-- Eine typisierte Konfiguration verwendet
-- Asynchron arbeitet
-
-### Übung 2: Konfiguration erweitern
-Erweitern Sie `ExtensionConfig` um:
-- Eine neue optionale Sektion `themes`
-- Union Type für Theme-Namen
-- Default-Werte in `loadExtensionConfig`
-
-### Übung 3: Type Guard implementieren
-Erstellen Sie einen Type Guard für:
 ```typescript
-function isMarkdownDocument(obj: any): obj is vscode.TextDocument {
-    // Implementierung
+class MessageService {
+    public dispose(): void {
+        // Cleanup-Logik
+    }
 }
+
+// In extension.ts: Automatic cleanup
+context.subscriptions.push({
+    dispose: () => messageService.dispose()
+});
 ```
 
-## 🔬 TypeScript vs. Java - Vergleichstabelle
+**VSCode-spezifisch:** Automatisches Cleanup beim Deaktivieren.
 
-| Konzept | Java | TypeScript |
-|---------|------|------------|
-| **Typsystem** | Nominal (Klassenhierarchie) | Strukturell (Duck Typing) |
-| **Typinferenz** | Begrenzt (var, diamond operator) | Umfassend (automatisch) |
-| **Null-Sicherheit** | Optional\<T\>, verbose | ?., ??, eleganter |
-| **Async Programming** | CompletableFuture, verbose | async/await, intuitiv |
-| **Union Types** | Nicht verfügbar | Native Unterstützung |
-| **Interface Extensions** | Implementierung erforderlich | Strukturelle Kompatibilität |
+## 📊 Vergleich: Funktional vs. OOP
 
-## 🛠️ Entwicklung und Debugging
+| Aspekt | Funktional | OOP |
+|--------|------------|-----|
+| Commands | Einzelfunktionen | Klassen-Hierarchie |
+| Shared Logic | Code-Duplikation | BaseCommand-Vererbung |  
+| Services | Direkte API-Calls | Injizierte Dependencies |
+| Testing | Schwer mockbar | Interface-Mocking |
 
-### Debug-Konfiguration
-Die Extension ist für Debugging vorkonfiguriert:
-- Starten Sie mit `F5`
-- Setzen Sie Breakpoints in `src/extension.ts`
-- Debug Console zeigt Ausgaben
+## 🚀 Nächste Schritte
 
-### Häufige Probleme
+1. **Neuen Command hinzufügen:**
+   - Klasse von `BaseCommand` ableiten
+   - Service per Constructor injizieren
+   - In `extension.ts` registrieren
 
-**Problem:** `command 'demo.xyz' already exists`
-**Lösung:** Command ist bereits registriert, überprüfen Sie doppelte Registrierungen
-
-**Problem:** `Cannot find module 'vscode'`
-**Lösung:** Führen Sie `yarn install` aus
-
-**Problem:** TypeScript-Compilation Fehler
-**Lösung:** Überprüfen Sie `tsconfig.json` und führen Sie `yarn compile` aus
-
-## 📖 Weiterführende Ressourcen
-
-### TypeScript
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [TypeScript für Java-Entwickler](https://www.typescriptlang.org/docs/handbook/typescript-from-scratch.html)
-
-### VSCode Extension Development
-- [VSCode Extension API](https://code.visualstudio.com/api/references/vscode-api)
-- [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-- [Publishing Extensions](https://code.visualstudio.com/api/working-with-extensions/publishing-extension)
-
-### Verwandte Schulungsmodule
-- **Extension Lifecycle und Aktivierung**
-- **Command Registration und User Interaction**
-- **Workspace APIs und File System**
-- **Webviews und Tree Views**
-
-## 📄 Lizenz
-
-Dieses Projekt dient ausschließlich Bildungszwecken und ist Teil einer TypeScript-Schulung für Java-Entwickler.
-
----
-
-**Entwickelt für die Schulung: VSCode Extension Development mit TypeScript**  
-*Zielgruppe: Erfahrene Java-Entwickler mit Eclipse-Hintergrund*
+2. **Neuen Service erstellen:**
+   - Interface definieren
+   - Klasse implementieren  
+   - In Commands injizieren

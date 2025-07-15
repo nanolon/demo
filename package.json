@@ -1,8 +1,8 @@
 {
   "name": "demo",
-  "displayName": "demo",
-  "description": "TypeScript Extension Development Demo",
-  "version": "0.0.1",
+  "displayName": "Demo Extension (OOP)",
+  "description": "TypeScript OOP Extension Development Demo with Service Architecture",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.102.0"
   },
@@ -19,76 +19,44 @@
         "category": "Demo"
       },
       {
-        "command": "demo.saveAll",
-        "title": "Save All Files",
+        "command": "demo.fileInfo",
+        "title": "Show File Information",
         "category": "Demo"
       },
       {
-        "command": "demo.analyzeFile",
-        "title": "Analyze Current File",
+        "command": "demo.showLog",
+        "title": "Show Extension Log",
         "category": "Demo"
       },
       {
-        "command": "demo.showConfig",
-        "title": "Show Configuration",
-        "category": "Demo"
-      },
-      {
-        "command": "demo.showStats",
-        "title": "Show Extension Stats",
-        "category": "Demo"
-      },
-      {
-        "command": "demo.analyze",
-        "title": "Analyze File (Structural Example)",
+        "command": "demo.configTest",
+        "title": "Test Configuration",
         "category": "Demo"
       }
     ],
     "configuration": {
-      "title": "Demo Extension",
+      "title": "Demo Extension (OOP)",
       "properties": {
+        "demo.logLevel": {
+          "type": "string",
+          "enum": ["debug", "info", "warn", "error"],
+          "default": "info",
+          "description": "Extension log level for output channel"
+        },
         "demo.autoSave": {
           "type": "boolean",
           "default": true,
-          "description": "Enable automatic saving"
+          "description": "Enable automatic saving of files"
         },
-        "demo.logLevel": {
-          "type": "string",
-          "enum": ["info", "warn", "error"],
-          "default": "info",
-          "description": "Log level for messages"
-        },
-        "demo.maxFiles": {
+        "demo.maxFileSize": {
           "type": "number",
-          "default": 100,
-          "description": "Maximum number of files to process"
+          "default": 1024,
+          "description": "Maximum file size in KB for processing"
         },
-        "demo.logging": {
+        "demo.enableDebugOutput": {
           "type": "boolean",
           "default": false,
-          "description": "Enable logging"
-        },
-        "demo.extensions": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": ["ts", "js"],
-          "description": "File extensions to consider"
-        },
-        "demo.experimental": {
-          "type": "object",
-          "properties": {
-            "mode": {
-              "type": "boolean",
-              "default": false
-            },
-            "debug": {
-              "type": "boolean", 
-              "default": false
-            }
-          },
-          "description": "Experimental features"
+          "description": "Enable debug output in console"
         }
       }
     }
@@ -98,7 +66,7 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "yarn run compile && yarn run lint",
-    "lint": "eslint src",
+    "lint": "eslint src --ext ts",
     "test": "vscode-test"
   },
   "devDependencies": {
