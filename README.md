@@ -1,71 +1,204 @@
-# demo README
+# Workspace File Picker
 
-This is the README for your extension "demo". After writing up a brief description, we recommend including the following sections.
+VSCode Extension für schnelle Dateiauswahl im Workspace mittels Fuzzy-Search-Dialog.
 
-## Features
+## Zweck
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+Die Extension implementiert einen `workspaceFilePicker.pick` Command, der alle Dateien des aktiven Workspace auflistet und über einen `showQuickPick`-Dialog zur Auswahl anbietet. Bei Auswahl wird die Datei automatisch im Editor geöffnet.
 
-For example if there is an image subfolder under your extension project workspace:
+**Zielszenario:** Schnelle Navigation zu bekannten Dateien ohne Durchsuchen der Ordnerstruktur im Explorer.
 
-\!\[feature X\]\(images/feature-x.png\)
+## Aufruf
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+### Command Palette
+- `Ctrl+Shift+P` (Windows/Linux) oder `Cmd+Shift+P` (macOS)
+- Command eingeben: `Pick Workspace File`
 
-## Requirements
+### Tastenkürzel
+- `Ctrl+Shift+O` (Windows/Linux)
+- `Cmd+Shift+O` (macOS)
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+### Programmatisch
+```typescript
+await vscode.commands.executeCommand('workspaceFilePicker.pick');
+```
 
-## Extension Settings
+## Funktionalität
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+1. **Dateierkennung**: Rekursive Suche aller Dateien im Workspace
+2. **Filterung**: Automatischer Ausschluss von Build-Ordnern (`node_modules`, `out`, `dist`, `.git`, `.vscode-test`)
+3. **Sortierung**: Alphabetisch nach Dateiname
+4. **Fuzzy-Search**: Suche in Dateiname, Verzeichnispfad und vollständigem Pfad
+5. **Öffnung**: Automatisches Öffnen in neuem Editor-Tab mit Fokus
 
-For example:
+## Benutzeroberfläche
 
-This extension contributes the following settings:
+```
+┌─ Pick Workspace File ────────────────────────────┐
+│ Dateiname eingeben zum Filtern...                │
+├─────────────────────────────────────────────────┤
+│ ► extension.ts          src/               📄    │
+│   package.json          .                  📄    │
+│   README.md             .                  📄    │
+│   tsconfig.json         .                  📄    │
+└─────────────────────────────────────────────────┘
+```
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+**Anzeigeformat pro Eintrag:**
+- **Label**: Dateiname
+- **Description**: Verzeichnispfad (relativ zum Workspace)
+- **Detail**: Vollständiger relativer Pfad
 
-## Known Issues
+## API-Verwendung
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+### Kernkomponenten
 
-## Release Notes
+**Dateifindung:**
+```typescript
+// Alle Dateien mit Ausschlussfilter
+const files = await vscode.workspace.findFiles(
+    '**/*',                                          // Alle Dateien rekursiv
+    '{**/node_modules/**,**/out/**,**/dist/**}',     // Ausschlussmuster
+    undefined,                                       // Unbegrenztes Limit
+    cancellationToken                                // Für Progress-Dialog
+);
+```
 
-Users appreciate release notes as you update your extension.
+**QuickPick-Konfiguration:**
+```typescript
+const quickPick = vscode.window.createQuickPick<FileQuickPickItem>();
+quickPick.placeholder = 'Dateiname eingeben zum Filtern...';
+quickPick.matchOnDescription = true;  // Suche in Verzeichnispfad
+quickPick.matchOnDetail = true;       // Suche in vollständigem Pfad
+```
 
-### 1.0.0
+**Datei öffnen:**
+```typescript
+const document = await vscode.workspace.openTextDocument(fileUri);
+await vscode.window.showTextDocument(document, {
+    preview: false,      // Neuer Tab (nicht Preview)
+    preserveFocus: false // Editor fokussieren
+});
+```
 
-Initial release of ...
+### Extension-Lifecycle
 
-### 1.0.1
+**Aktivierung:**
+- Erfolgt automatisch bei erstem Command-Aufruf
+- Keine explizite `activationEvents`-Konfiguration erforderlich
 
-Fixed issue #.
+**Registrierung:**
+```typescript
+const disposable = vscode.commands.registerCommand('workspaceFilePicker.pick', handler);
+context.subscriptions.push(disposable);
+```
 
-### 1.1.0
+## Erweiterungsmöglichkeiten
 
-Added features X, Y, and Z.
+### 1. Erweiterte Filteroptionen
 
----
+**Include/Exclude-Pattern konfigurierbar:**
+```typescript
+// settings.json
+"workspaceFilePicker.includePattern": "**/*.{ts,js,json}",
+"workspaceFilePicker.excludePattern": "**/node_modules/**"
+```
 
-## Following extension guidelines
+**Implementierung:**
+```typescript
+const config = vscode.workspace.getConfiguration('workspaceFilePicker');
+const includePattern = config.get<string>('includePattern', '**/*');
+const excludePattern = config.get<string>('excludePattern', defaultExcludes);
+```
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+### 2. Dateityp-Icons
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+**FileType-basierte Icons:**
+```typescript
+interface FileQuickPickItem extends vscode.QuickPickItem {
+    $(symbol-file) fileName.ts     // TypeScript-Icon
+    $(symbol-class) Component.tsx  // React-Component-Icon
+}
+```
 
-## Working with Markdown
+### 3. Kürzlich geöffnete Dateien
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+**MRU-Liste Integration:**
+```typescript
+// Kürzlich geöffnete Dateien priorisieren
+const recentFiles = context.workspaceState.get<string[]>('recentFiles', []);
+items.sort((a, b) => {
+    const aIndex = recentFiles.indexOf(a.relativePath);
+    const bIndex = recentFiles.indexOf(b.relativePath);
+    if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+    if (aIndex !== -1) return -1;
+    if (bIndex !== -1) return 1;
+    return a.label.localeCompare(b.label);
+});
+```
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+### 4. Multi-Workspace-Support
 
-## For more information
+**Workspace-übergreifende Suche:**
+```typescript
+const allWorkspaceFolders = vscode.workspace.workspaceFolders || [];
+const filePromises = allWorkspaceFolders.map(folder => 
+    vscode.workspace.findFiles(
+        new vscode.RelativePattern(folder, '**/*'),
+        excludePattern
+    )
+);
+const allFiles = (await Promise.all(filePromises)).flat();
+```
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+### 5. Performance-Optimierung
 
-**Enjoy!**
+**Lazy Loading großer Workspace:**
+```typescript
+const quickPick = vscode.window.createQuickPick();
+quickPick.busy = true;  // Loading-Indikator
+
+// Streaming-Update der Items
+for await (const fileBatch of getFilesBatched()) {
+    quickPick.items = [...quickPick.items, ...fileBatch];
+}
+quickPick.busy = false;
+```
+
+## Architektur
+
+```
+src/extension.ts
+├── activate()                    # Extension-Einstiegspunkt
+├── pickAndOpenWorkspaceFile()    # Hauptfunktion
+├── findAllWorkspaceFiles()       # Workspace-Dateien finden
+├── createQuickPickItems()        # UI-Items erstellen
+├── showFileQuickPick()           # Dialog anzeigen
+└── openFileInEditor()            # Datei öffnen
+```
+
+**Datenfluss:**
+1. Command-Aufruf → `pickAndOpenWorkspaceFile()`
+2. `vscode.workspace.findFiles()` → URI-Liste
+3. URI-Transformation → `QuickPickItem[]`
+4. `showQuickPick()` → Benutzerauswahl
+5. `openTextDocument()` → Editor-Anzeige
+
+## Build und Test
+
+```bash
+# Kompilierung
+npm run compile
+
+# Watch-Modus
+npm run watch
+
+# Extension testen
+F5 (VS Code Debug)
+```
+
+**Test-Szenarios:**
+- Leerer Workspace (Warnung)
+- Großer Workspace (Performance)
+- Spezielle Zeichen in Dateinamen
+- Unterbrochene Suche (Cancellation)

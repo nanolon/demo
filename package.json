@@ -1,7 +1,7 @@
 {
-  "name": "demo",
-  "displayName": "demo",
-  "description": "",
+  "name": "workspace-file-picker",
+  "displayName": "Workspace File Picker",
+  "description": "Quick file picker for workspace files",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.102.0"
@@ -14,8 +14,15 @@
   "contributes": {
     "commands": [
       {
-        "command": "demo.helloWorld",
-        "title": "Hello World"
+        "command": "workspaceFilePicker.pick",
+        "title": "Pick Workspace File"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "workspaceFilePicker.pick",
+        "key": "ctrl+shift+o",
+        "mac": "cmd+shift+o"
       }
     ]
   },
