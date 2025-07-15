@@ -1,13 +1,14 @@
 {
-  "name": "demo",
-  "displayName": "demo",
-  "description": "",
+  "name": "hello-world-highlighter",
+  "displayName": "Hello World Highlighter",
+  "description": "Syntax-Highlighting für Hello World und Hallo Welt in Text-Dateien",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.102.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Language Packs"
   ],
   "activationEvents": [],
   "main": "./out/extension.js",
@@ -16,6 +17,21 @@
       {
         "command": "demo.helloWorld",
         "title": "Hello World"
+      }
+    ],
+    "languages": [
+      {
+        "id": "hello-text",
+        "aliases": ["Hello Text", "hello-text"],
+        "extensions": [".txt"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "hello-text",
+        "scopeName": "source.hello-text",
+        "path": "./syntaxes/hello-text.tmGrammar.json"
       }
     ]
   },
