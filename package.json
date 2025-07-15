@@ -1,7 +1,7 @@
 {
   "name": "demo",
   "displayName": "demo",
-  "description": "",
+  "description": "TypeScript Extension Development Demo",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.102.0"
@@ -15,9 +15,83 @@
     "commands": [
       {
         "command": "demo.helloWorld",
-        "title": "Hello World"
+        "title": "Hello World",
+        "category": "Demo"
+      },
+      {
+        "command": "demo.saveAll",
+        "title": "Save All Files",
+        "category": "Demo"
+      },
+      {
+        "command": "demo.analyzeFile",
+        "title": "Analyze Current File",
+        "category": "Demo"
+      },
+      {
+        "command": "demo.showConfig",
+        "title": "Show Configuration",
+        "category": "Demo"
+      },
+      {
+        "command": "demo.showStats",
+        "title": "Show Extension Stats",
+        "category": "Demo"
+      },
+      {
+        "command": "demo.analyze",
+        "title": "Analyze File (Structural Example)",
+        "category": "Demo"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Demo Extension",
+      "properties": {
+        "demo.autoSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable automatic saving"
+        },
+        "demo.logLevel": {
+          "type": "string",
+          "enum": ["info", "warn", "error"],
+          "default": "info",
+          "description": "Log level for messages"
+        },
+        "demo.maxFiles": {
+          "type": "number",
+          "default": 100,
+          "description": "Maximum number of files to process"
+        },
+        "demo.logging": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable logging"
+        },
+        "demo.extensions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": ["ts", "js"],
+          "description": "File extensions to consider"
+        },
+        "demo.experimental": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "boolean",
+              "default": false
+            },
+            "debug": {
+              "type": "boolean", 
+              "default": false
+            }
+          },
+          "description": "Experimental features"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "yarn run compile",
