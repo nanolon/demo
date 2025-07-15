@@ -1,71 +1,189 @@
-# demo README
+# VSCode Extension Demo - TreeView Integration
 
-This is the README for your extension "demo". After writing up a brief description, we recommend including the following sections.
+## Überblick
+
+Diese Extension demonstriert die grundlegenden Konzepte der VSCode Extension-Entwicklung mit TypeScript, einschließlich der Integration von TreeViews in die Explorer-Ansicht.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+### Hello World Command
+- **Command ID**: `demo.helloWorld`
+- **Ausführung**: Über Command Palette (`Ctrl+Shift+P` > "Hello World")
+- **Funktion**: Zeigt eine Informationsmeldung an
 
-For example if there is an image subfolder under your extension project workspace:
+### Example TreeView
+- **View ID**: `exampleView`
+- **Position**: Explorer-Panel (linke Seitenleiste)
+- **Inhalt**: Statische Liste mit drei Einträgen ("Eintrag A", "Eintrag B", "Eintrag C")
 
-\!\[feature X\]\(images/feature-x.png\)
+## TreeView-Architektur
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+### Komponenten
 
-## Requirements
+Die TreeView-Implementation besteht aus drei Hauptkomponenten:
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+1. **TreeItem-Klasse** (`ExampleTreeItem`)
+   - Erbt von `vscode.TreeItem`
+   - Definiert einzelne Knoten mit Label, Icon und Tooltip
+   - Bestimmt Kollaps-Zustand der Knoten
 
-## Extension Settings
+2. **TreeDataProvider** (`ExampleTreeDataProvider`)
+   - Implementiert `vscode.TreeDataProvider<T>`
+   - Stellt Daten für die TreeView bereit
+   - Behandelt Refresh-Events
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+3. **View-Registrierung**
+   - Konfiguration in `package.json` unter `contributes.views`
+   - Registrierung des DataProviders in der `activate()`-Funktion
 
-For example:
+### Konfiguration in package.json
 
-This extension contributes the following settings:
+```json
+{
+  "contributes": {
+    "views": {
+      "explorer": [
+        {
+          "id": "exampleView",
+          "name": "Example View",
+          "when": "true"
+        }
+      ]
+    }
+  }
+}
+```
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+**Parameter-Erklärung:**
+- `explorer`: Platziert die View im Explorer-Panel
+- `id`: Eindeutige Bezeichnung für programmatischen Zugriff
+- `name`: Angezeigter Titel in der UI
+- `when`: Bedingung für Sichtbarkeit (`"true"` = immer sichtbar)
 
-## Known Issues
+### Anzeigeverhalten
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+Die TreeView wird **automatisch angezeigt**, wenn:
+- Die Extension aktiviert ist
+- Das Explorer-Panel geöffnet ist
+- Die `when`-Bedingung erfüllt ist (hier: `"true"`)
 
-## Release Notes
+**Aktivierung der Extension:**
+- Beim ersten Ausführen eines registrierten Commands
+- Bei VSCode-Start, falls `activationEvents` definiert sind
+- Manuell über Extension-Panel
 
-Users appreciate release notes as you update your extension.
+## Code-Erweiterungen
 
-### 1.0.0
+### Dynamische Inhalte
 
-Initial release of ...
+Erweitern Sie `getChildren()` für dynamische Daten:
 
-### 1.0.1
+```typescript
+getChildren(element?: ExampleTreeItem): Thenable<ExampleTreeItem[]> {
+    if (!element) {
+        // Dynamische Daten laden
+        return this.loadDataFromSource();
+    }
+    return Promise.resolve([]);
+}
 
-Fixed issue #.
+private async loadDataFromSource(): Promise<ExampleTreeItem[]> {
+    // Beispiel: Dateisystem, API-Calls, Workspace-Inhalte
+    const items = await someAsyncDataSource();
+    return items.map(item => new ExampleTreeItem(item.name));
+}
+```
 
-### 1.1.0
+### Hierarchische Strukturen
 
-Added features X, Y, and Z.
+Für verschachtelte Bäume:
 
----
+```typescript
+getChildren(element?: ExampleTreeItem): Thenable<ExampleTreeItem[]> {
+    if (!element) {
+        // Root-Ebene
+        return Promise.resolve([
+            new ExampleTreeItem('Parent A', vscode.TreeItemCollapsibleState.Collapsed),
+            new ExampleTreeItem('Parent B', vscode.TreeItemCollapsibleState.Collapsed)
+        ]);
+    }
+    
+    // Child-Ebene basierend auf Parent
+    switch (element.label) {
+        case 'Parent A':
+            return Promise.resolve([
+                new ExampleTreeItem('Child A1'),
+                new ExampleTreeItem('Child A2')
+            ]);
+        case 'Parent B':
+            return Promise.resolve([
+                new ExampleTreeItem('Child B1')
+            ]);
+        default:
+            return Promise.resolve([]);
+    }
+}
+```
 
-## Following extension guidelines
+### Context-Menüs und Commands
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+Fügen Sie in `package.json` hinzu:
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+```json
+{
+  "contributes": {
+    "commands": [
+      {
+        "command": "exampleView.itemClicked",
+        "title": "Item Action"
+      }
+    ],
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "exampleView.itemClicked",
+          "when": "view == exampleView"
+        }
+      ]
+    }
+  }
+}
+```
 
-## Working with Markdown
+Registrieren Sie das Command:
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+```typescript
+const itemClickCommand = vscode.commands.registerCommand('exampleView.itemClicked', (item: ExampleTreeItem) => {
+    vscode.window.showInformationMessage(`Clicked: ${item.label}`);
+});
+context.subscriptions.push(itemClickCommand);
+```
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+### Refresh-Funktionalität
 
-## For more information
+Die implementierte `refresh()`-Methode ermöglicht programmatische Updates:
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+```typescript
+// Manueller Refresh
+treeDataProvider.refresh();
 
-**Enjoy!**
+// Automatischer Refresh bei Dateiänderungen
+const watcher = vscode.workspace.createFileSystemWatcher('**/*');
+watcher.onDidChange(() => treeDataProvider.refresh());
+context.subscriptions.push(watcher);
+```
+
+## Installation und Test
+
+1. **Entwicklungsumgebung starten**: `F5` in VSCode
+2. **TreeView finden**: Explorer-Panel → "Example View" Sektion
+3. **Command testen**: `Ctrl+Shift+P` → "Hello World"
+
+## Typische Anwendungsfälle
+
+- **Projekt-Explorer**: Spezielle Dateisicht für Framework-Strukturen
+- **Dependency-Viewer**: Anzeige von Package-Abhängigkeiten
+- **Task-Management**: Integration von Build-Tasks oder TODOs
+- **API-Explorer**: Darstellung von REST-Endpoints oder Datenbank-Schemata
+
+Die TreeView-API bietet durch ihre Flexibilität umfassende Möglichkeiten für domänenspezifische Navigationsstrukturen innerhalb von VSCode Extensions.
