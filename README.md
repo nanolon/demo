@@ -1,71 +1,150 @@
-# demo README
+# VSCode Extension Demo - Unit Testing mit Mocha
 
-This is the README for your extension "demo". After writing up a brief description, we recommend including the following sections.
+Diese VSCode Extension demonstriert die Grundlagen der Extension-Entwicklung mit TypeScript und zeigt, wie Unit Tests mit Mocha erstellt und ausgeführt werden.
 
-## Features
+## Projektstruktur
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+```
+├── src/
+│   ├── extension.ts          # Hauptcode der Extension
+│   └── test/
+│       └── extension.test.ts # Unit Tests
+├── package.json              # Extension-Manifest und Dependencies
+└── tsconfig.json            # TypeScript-Konfiguration
+```
 
-For example if there is an image subfolder under your extension project workspace:
+## Installation und Setup
 
-\!\[feature X\]\(images/feature-x.png\)
+1. **Dependencies installieren:**
+   ```bash
+   yarn install
+   ```
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+2. **TypeScript kompilieren:**
+   ```bash
+   yarn run compile
+   ```
 
-## Requirements
+## Tests ausführen
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+### Methode 1: Kommandozeile (empfohlen)
 
-## Extension Settings
+```bash
+# Tests kompilieren und ausführen
+yarn run test
+```
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+### Methode 2: VSCode Test Runner
 
-For example:
+1. **Extension Test Runner installieren:**
+   - Öffnen Sie die Extensions-Ansicht (`Ctrl+Shift+X`)
+   - Suchen Sie nach "Extension Test Runner"
+   - Installieren Sie die Extension von Microsoft
 
-This extension contributes the following settings:
+2. **Tests ausführen:**
+   - Öffnen Sie die Test-Ansicht in der Aktivitätsleiste
+   - Klicken Sie auf "Run Tests"
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+### Methode 3: VSCode Debug-Konfiguration
 
-## Known Issues
+1. Drücken Sie `F5` um die Extension in einem neuen VSCode-Fenster zu starten
+2. Im Debug-Fenster können Sie Tests debuggen
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+## Was wird getestet?
 
-## Release Notes
+Die Tests demonstrieren verschiedene Aspekte des Unit Testing:
 
-Users appreciate release notes as you update your extension.
+### 1. Einfache Funktions-Tests
+- **isValidFilename()**: Validierung von Dateinamen
+- **createGreeting()**: Erstellung von Begrüßungsnachrichten  
+- **countWords()**: Zählung von Wörtern in Texten
 
-### 1.0.0
+### 2. Edge Cases und Fehlerbehandlung
+- Leere Strings und null/undefined Werte
+- Whitespace-Behandlung
+- Ungültige Eingaben
 
-Initial release of ...
+### 3. VSCode Integration Tests
+- Überprüfung registrierter Kommandos
+- Extension-Aktivierung
 
-### 1.0.1
+### 4. Array-Operationen (TypeScript/JavaScript typisch)
+- indexOf() Methoden
+- filter() Operationen
 
-Fixed issue #.
+## Test-Struktur verstehen
 
-### 1.1.0
+```typescript
+suite('Test Suite Name', () => {
+    test('should do something specific', () => {
+        // Arrange: Testdaten vorbereiten
+        const input = 'test.txt';
+        
+        // Act: Funktion ausführen
+        const result = isValidFilename(input);
+        
+        // Assert: Ergebnis überprüfen
+        assert.strictEqual(result, true);
+    });
+});
+```
 
-Added features X, Y, and Z.
+## Wichtige Test-Assertions
 
----
+```typescript
+// Gleichheit prüfen
+assert.strictEqual(actual, expected);
 
-## Following extension guidelines
+// Deep Equality für Objekte/Arrays
+assert.deepStrictEqual(actualArray, expectedArray);
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+// Wahrheitswerte prüfen
+assert.ok(value); // value ist truthy
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+// Fehler erwarten
+assert.throws(() => functionThatShouldThrow());
+```
 
-## Working with Markdown
+## Extension testen
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+Die Extension stellt zwei Kommandos zur Verfügung:
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+1. **Hello World** (`demo.helloWorld`)
+   - Zeigt eine Begrüßungsnachricht an
 
-## For more information
+2. **Count Words** (`demo.countWords`)
+   - Zählt Wörter im aktiven Editor
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+### Kommandos ausführen:
+1. Drücken Sie `Ctrl+Shift+P` (Command Palette)
+2. Tippen Sie "Hello World" oder "Count Words"
+3. Wählen Sie das gewünschte Kommando aus
 
-**Enjoy!**
+## Kontinuierliche Entwicklung
+
+Für die Entwicklung können Sie den Watch-Modus verwenden:
+
+```bash
+# TypeScript automatisch kompilieren bei Änderungen
+yarn run watch
+```
+
+## Häufige Probleme
+
+**Tests werden nicht gefunden:**
+- Stellen Sie sicher, dass `yarn run compile` erfolgreich war
+- Überprüfen Sie, dass Dateien im `out/` Ordner existieren
+
+**Extension lädt nicht:**
+- Prüfen Sie die Console auf Kompilierungsfehler
+- Stellen Sie sicher, dass alle Dependencies installiert sind
+
+**VSCode API Tests schlagen fehl:**
+- Diese Tests benötigen eine vollständige VSCode-Umgebung
+- Verwenden Sie `yarn run test` für vollständige Testausführung
+
+## Weiterführende Informationen
+
+- [VSCode Extension API](https://code.visualstudio.com/api)
+- [Mocha Testing Framework](https://mochajs.org/)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/)

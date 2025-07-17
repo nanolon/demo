@@ -2,6 +2,46 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
+/**
+ * Hilfsfunktion: Validiert einen Dateinamen
+ * @param filename Der zu validierende Dateiname
+ * @returns true wenn der Dateiname gültig ist
+ */
+export function isValidFilename(filename: string): boolean {
+	if (!filename || filename.trim().length === 0) {
+		return false;
+	}
+	
+	// Ungültige Zeichen für Dateinamen
+	const invalidChars = /[<>:"/\\|?*]/;
+	return !invalidChars.test(filename);
+}
+
+/**
+ * Hilfsfunktion: Erstellt eine Begrüßungsnachricht
+ * @param name Der Name für die Begrüßung
+ * @returns Formatierte Begrüßungsnachricht
+ */
+export function createGreeting(name: string): string {
+	if (!name || name.trim().length === 0) {
+		return "Hello World!";
+	}
+	return `Hello ${name.trim()}!`;
+}
+
+/**
+ * Hilfsfunktion: Zählt Wörter in einem Text
+ * @param text Der zu analysierende Text
+ * @returns Anzahl der Wörter
+ */
+export function countWords(text: string): number {
+	if (!text || text.trim().length === 0) {
+		return 0;
+	}
+	
+	return text.trim().split(/\s+/).length;
+}
+
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -16,10 +56,24 @@ export function activate(context: vscode.ExtensionContext) {
 	const disposable = vscode.commands.registerCommand('demo.helloWorld', () => {
 		// The code you place here will be executed every time your command is executed
 		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from demo!');
+		const greeting = createGreeting("VSCode Extension Developer");
+		vscode.window.showInformationMessage(greeting);
+	});
+
+	// Kommando für Wort-Zählung im aktiven Editor
+	const wordCountDisposable = vscode.commands.registerCommand('demo.countWords', () => {
+		const editor = vscode.window.activeTextEditor;
+		if (editor) {
+			const text = editor.document.getText();
+			const wordCount = countWords(text);
+			vscode.window.showInformationMessage(`Word count: ${wordCount}`);
+		} else {
+			vscode.window.showWarningMessage('No active editor found');
+		}
 	});
 
 	context.subscriptions.push(disposable);
+	context.subscriptions.push(wordCountDisposable);
 }
 
 // This method is called when your extension is deactivated
