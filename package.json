@@ -1,39 +1,52 @@
 {
-  "name": "hello-world-highlighter",
-  "displayName": "Hello World Highlighter",
-  "description": "Syntax-Highlighting für Hello World und Hallo Welt in Text-Dateien",
+  "name": "demo",
+  "displayName": "Demo Language Features",
+  "description": "Demonstration von Autovervollständigung und Hover-Features",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.102.0"
   },
   "categories": [
     "Other",
-    "Language Packs"
+    "Snippets",
+    "Programming Languages"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onLanguage:typescript",
+    "onLanguage:javascript",
+    "onLanguage:plaintext"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "demo.helloWorld",
-        "title": "Hello World"
+        "title": "Hello World",
+        "category": "Demo"
+      },
+      {
+        "command": "demo.showLanguageInfo",
+        "title": "Show Language Info",
+        "category": "Demo"
       }
     ],
-    "languages": [
+    "keybindings": [
       {
-        "id": "hello-text",
-        "aliases": ["Hello Text", "hello-text"],
-        "extensions": [".txt"],
-        "configuration": "./language-configuration.json"
+        "command": "demo.showLanguageInfo",
+        "key": "ctrl+shift+d",
+        "mac": "cmd+shift+d",
+        "when": "editorTextFocus"
       }
     ],
-    "grammars": [
-      {
-        "language": "hello-text",
-        "scopeName": "source.hello-text",
-        "path": "./syntaxes/hello-text.tmGrammar.json"
-      }
-    ]
+    "menus": {
+      "editor/context": [
+        {
+          "command": "demo.showLanguageInfo",
+          "when": "editorHasSelection",
+          "group": "demo"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "yarn run compile",
