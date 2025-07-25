@@ -1,6 +1,6 @@
 // =============================================================================
 // src/services/LoggingService.ts
-// Logging-Service mit Output-Channel und konfigurierbarem Log-Level
+// Logging service with output channel and configurable log level
 // =============================================================================
 
 import * as vscode from 'vscode';
@@ -23,7 +23,7 @@ export class LoggingService implements Disposable {
             const logMessage = `[${timestamp}] ${level.toUpperCase()}: ${message}`;
             this.outputChannel.appendLine(logMessage);
             
-            // Auch in Debug Console für Development
+            // Also to Debug Console for development
             console.log(logMessage);
         }
     }

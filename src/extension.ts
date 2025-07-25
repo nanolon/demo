@@ -10,16 +10,16 @@ import { ShowLogCommand } from './commands/ShowLogCommand';
 import { ConfigTestCommand } from './commands/ConfigTestCommand';
 import { LoggingService } from './services/LoggingService';
 
-// Globaler Extension-Manager (Singleton Pattern)
+// Global extension manager (Singleton Pattern)
 let extensionManager: ExtensionManager;
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('Extension "demo" is activating...');
     
-    // Extension-Manager mit Services initialisieren
+    // Initialize extension manager with services
     extensionManager = new ExtensionManager(context);
     
-    // Commands mit automatischer Service-Injection registrieren
+    // Register commands with automatic service injection
     const commands: BaseCommand[] = [
         new HelloWorldCommand(),
         new FileInfoCommand(),
@@ -27,15 +27,15 @@ export function activate(context: vscode.ExtensionContext) {
         new ConfigTestCommand()
     ];
     
-    // Alle Commands registrieren (Dependency Injection erfolgt automatisch)
+    // Register all commands (Dependency Injection happens automatically)
     commands.forEach(command => {
         extensionManager.registerCommand(command);
     });
     
-    // Manager für automatisches Cleanup registrieren
+    // Register manager for automatic cleanup
     context.subscriptions.push(extensionManager);
     
-    // Extension-Statistiken bei Aktivierung loggen
+    // Log extension statistics on activation
     const logger = extensionManager.getService<LoggingService>('logging');
     logger?.log('Extension activated with OOP architecture', 'info');
     logger?.log(`Registered commands: ${extensionManager.getRegisteredCommands().join(', ')}`, 'debug');
@@ -47,12 +47,12 @@ export function activate(context: vscode.ExtensionContext) {
 export function deactivate() {
     console.log('Extension "demo" is deactivating...');
     
-    // Command-Statistiken vor Deaktivierung loggen
+    // Log command statistics before deactivation
     if (extensionManager) {
         const logger = extensionManager.getService<LoggingService>('logging');
         const stats = extensionManager.getCommandStatistics();
         logger?.log(`Extension deactivating. Command statistics: ${JSON.stringify(stats)}`, 'info');
     }
     
-    // Automatisches Cleanup durch Dispose-Pattern erfolgt über context.subscriptions
+    // Automatic cleanup through Dispose pattern happens via context.subscriptions
 }

@@ -1,15 +1,15 @@
-# OOP Grundlagen für VSCode Extensions
+# OOP Fundamentals for VSCode Extensions
 
-## 🎯 Lernziele
+## 🎯 Learning Objectives
 
-Diese Extension demonstriert **4 zentrale OOP-Konzepte** für VSCode Extensions:
+This extension demonstrates **4 central OOP concepts** for VSCode Extensions:
 
-1. **Interface-basierte Services** (strukturelle Typisierung)
-2. **Abstrakte Basisklassen** (Template Method Pattern)  
-3. **Dependency Injection** (manuell, einfach)
-4. **Dispose-Pattern** (Ressourcen-Management)
+1. **Interface-based Services** (structural typing)
+2. **Abstract Base Classes** (Template Method Pattern)  
+3. **Dependency Injection** (manual, simple)
+4. **Dispose Pattern** (resource management)
 
-## 📊 Architektur-Überblick
+## 📊 Architecture Overview
 
 ```mermaid
 graph TB
@@ -42,20 +42,20 @@ graph TB
     style B fill:#fff3e0
 ```
 
-## 📁 Einfache Struktur
+## 📁 Simple Structure
 
 ```
 src/
-├── extension.ts                    # Entry Point mit DI
+├── extension.ts                    # Entry Point with DI
 ├── services/
-│   └── MessageService.ts          # Interface + Implementierung
+│   └── MessageService.ts          # Interface + Implementation
 └── commands/
-    ├── BaseCommand.ts              # Abstrakte Basisklasse
-    ├── HelloCommand.ts             # Einfacher Command
-    └── FileAnalyzeCommand.ts       # Command mit Business Logic
+    ├── BaseCommand.ts              # Abstract Base Class
+    ├── HelloCommand.ts             # Simple Command
+    └── FileAnalyzeCommand.ts       # Command with Business Logic
 ```
 
-## 🏗️ Klassendiagramm
+## 🏗️ Class Diagram
 
 ```mermaid
 classDiagram
@@ -100,11 +100,11 @@ classDiagram
     BaseCommand <|-- FileAnalyzeCommand : extends
     BaseCommand ..> IMessageService : uses
     
-    note for BaseCommand "Template Method Pattern:\nexecute() definiert Ablauf,\nperformAction() wird überschrieben"
-    note for IMessageService "Strukturelle Typisierung:\nImplementierung prüft\nObjektstruktur, nicht Typ"
+    note for BaseCommand "Template Method Pattern:\nexecute() defines flow,\nperformAction() is overridden"
+    note for IMessageService "Structural Typing:\nImplementation checks\nobject structure, not type"
 ```
 
-## 🔄 Sequenzdiagramm: Command-Ausführung
+## 🔄 Sequence Diagram: Command Execution
 
 ```mermaid
 sequenceDiagram
@@ -126,15 +126,15 @@ sequenceDiagram
     Base->>Base: try/catch wrapper
     Base->>Cmd: performAction() (abstract)
     
-    Note over Cmd: Konkrete Implementierung
+    Note over Cmd: Concrete Implementation
     Cmd->>Cmd: getExecutionCount()
     Cmd->>Svc: showInfo("Hello from OOP...")
     Svc->>Svc: messageCount++
     Svc->>VSCode: vscode.window.showInformationMessage()
-    VSCode->>User: Notification erscheint
+    VSCode->>User: Notification appears
 ```
 
-## 🔗 Modul-Dependencies
+## 🔗 Module Dependencies
 
 ```mermaid
 graph LR
@@ -179,79 +179,79 @@ graph LR
 ## 🔧 Setup
 
 ```bash
-# Ordner erstellen
+# Create folders
 mkdir -p src/services src/commands
 
-# Code aus Artifact kopieren
+# Copy code from Artifact
 # Files: MessageService.ts, BaseCommand.ts, HelloCommand.ts, FileAnalyzeCommand.ts, extension.ts
 
-# Kompilieren und starten
+# Compile and start
 yarn compile && F5
 ```
 
-## 🎮 Commands testen
+## 🎮 Testing Commands
 
-- `Demo: Hello OOP` - Einfacher Command mit Service
-- `Demo: Analyze File` - Editor-Analyse  
-- `Demo: Show Status` - Ausführungsstatistiken
+- `Demo: Hello OOP` - Simple command with service
+- `Demo: Analyze File` - Editor analysis  
+- `Demo: Show Status` - Execution statistics
 
-## 🔍 OOP-Konzepte im Detail
+## 🔍 OOP Concepts in Detail
 
-### 1. Interface-basierte Services
+### 1. Interface-based Services
 
 ```typescript
-// Interface definiert Contract
+// Interface defines contract
 interface IMessageService {
     showInfo(message: string): void;
     showError(message: string): void;
 }
 
-// Klasse implementiert Interface (strukturell!)
+// Class implements interface (structurally!)
 class MessageService implements IMessageService {
     // Implementation...
 }
 ```
 
-**Java-Unterschied:** TypeScript prüft strukturell, nicht nominal.
+**Java Difference:** TypeScript checks structurally, not nominally.
 
-### 2. Abstrakte Basisklasse (Template Method)
+### 2. Abstract Base Class (Template Method)
 
 ```typescript
 abstract class BaseCommand {
     public execute(): void {
-        // Template Method definiert Ablauf
-        this.performAction(); // Abstrakte Methode
+        // Template Method defines flow
+        this.performAction(); // Abstract method
     }
     
     protected abstract performAction(): void;
 }
 ```
 
-**Bekannt aus Java:** Gleiche Syntax, gleiche Semantik.
+**Known from Java:** Same syntax, same semantics.
 
-### 3. Dependency Injection (manuell)
+### 3. Dependency Injection (manual)
 
 ```typescript
-// Service wird in Constructor injiziert
+// Service is injected in constructor
 class HelloCommand extends BaseCommand {
     constructor(messageService: IMessageService) {
         super('demo.hello', messageService);
     }
 }
 
-// In extension.ts: Services manuell erstellen und injizieren
+// In extension.ts: Manually create and inject services
 const messageService = new MessageService();
 const command = new HelloCommand(messageService);
 ```
 
-**Vereinfacht:** Kein Framework wie Spring, aber gleiches Prinzip.
+**Simplified:** No framework like Spring, but same principle.
 
-### 4. Dispose-Pattern
+### 4. Dispose Pattern
 
 ```typescript
 class MessageService {
     public dispose(): void {
-        // Cleanup-Logik
+        // Cleanup logic
     }
 }
 
@@ -261,25 +261,13 @@ context.subscriptions.push({
 });
 ```
 
-**VSCode-spezifisch:** Automatisches Cleanup beim Deaktivieren.
+**VSCode-specific:** Automatic cleanup when deactivating.
 
-## 📊 Vergleich: Funktional vs. OOP
+## 📊 Comparison: Functional vs. OOP
 
-| Aspekt | Funktional | OOP |
+| Aspect | Functional | OOP |
 |--------|------------|-----|
-| Commands | Einzelfunktionen | Klassen-Hierarchie |
-| Shared Logic | Code-Duplikation | BaseCommand-Vererbung |  
-| Services | Direkte API-Calls | Injizierte Dependencies |
-| Testing | Schwer mockbar | Interface-Mocking |
-
-## 🚀 Nächste Schritte
-
-1. **Neuen Command hinzufügen:**
-   - Klasse von `BaseCommand` ableiten
-   - Service per Constructor injizieren
-   - In `extension.ts` registrieren
-
-2. **Neuen Service erstellen:**
-   - Interface definieren
-   - Klasse implementieren  
-   - In Commands injizieren
+| Commands | Individual functions | Class hierarchy |
+| Shared Logic | Code duplication | BaseCommand inheritance |  
+| Services | Direct API calls | Injected dependencies |
+| Testing | Hard to mock | Interface mocking |

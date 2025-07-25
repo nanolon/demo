@@ -1,6 +1,6 @@
 // =============================================================================
 // src/services/ConfigurationService.ts
-// Configuration-Service für typisierte Settings mit Change-Monitoring
+// Configuration service for typed settings with change monitoring
 // =============================================================================
 
 import * as vscode from 'vscode';
@@ -39,7 +39,7 @@ export class ConfigurationService implements Disposable {
     private setupConfigurationWatcher(): void {
         const watcher = vscode.workspace.onDidChangeConfiguration(event => {
             if (event.affectsConfiguration(this.configSection)) {
-                // Alle Listener über Konfigurationsänderung informieren
+                // Notify all listeners about configuration changes
                 this.changeListeners.forEach(listener => {
                     try {
                         listener('configChanged');

@@ -1,6 +1,6 @@
 // =============================================================================
 // src/interfaces/ServiceProvider.ts
-// Interface für Dependency Injection Pattern
+// Interface for Dependency Injection Pattern
 // =============================================================================
 
 export interface ServiceProvider {

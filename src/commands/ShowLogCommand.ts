@@ -1,6 +1,6 @@
 // =============================================================================
 // src/commands/ShowLogCommand.ts
-// Command für direkten Zugriff auf Logging-Output
+// Command for direct access to logging output
 // =============================================================================
 
 import { BaseCommand } from './BaseCommand';

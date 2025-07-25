@@ -1,6 +1,6 @@
 // =============================================================================
 // src/commands/BaseCommand.ts
-// Abstrakte Basis-Klasse für alle Extension-Commands (Template Method Pattern)
+// Abstract base class for all extension commands (Template Method Pattern)
 // =============================================================================
 
 import { ServiceProvider } from '../interfaces/ServiceProvider';
@@ -19,7 +19,7 @@ export abstract class BaseCommand implements Disposable {
         console.log(`BaseCommand created: ${commandId} - ${title}`);
     }
     
-    // Template Method - definiert einheitlichen Ausführungsablauf
+    // Template Method - defines uniform execution flow
     public async execute(serviceProvider: ServiceProvider): Promise<void> {
         this.executionCount++;
         this.logExecution(serviceProvider);
@@ -31,7 +31,7 @@ export abstract class BaseCommand implements Disposable {
         }
     }
     
-    // Abstrakte Methode - muss von Subklassen implementiert werden
+    // Abstract method - must be implemented by subclasses
     protected abstract performAction(serviceProvider: ServiceProvider): Promise<void> | void;
     
     public getId(): string {
@@ -48,7 +48,7 @@ export abstract class BaseCommand implements Disposable {
     
     public dispose(): void {
         console.log(`BaseCommand disposed: ${this.commandId}`);
-        // Standard-Cleanup, kann von Subklassen erweitert werden
+        // Standard cleanup, can be extended by subclasses
     }
     
     private logExecution(serviceProvider: ServiceProvider): void {

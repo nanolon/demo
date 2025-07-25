@@ -1,6 +1,6 @@
 // =============================================================================
 // src/commands/HelloWorldCommand.ts
-// Einfacher Command für Demonstration der BaseCommand-Vererbung
+// Simple command for demonstrating BaseCommand inheritance
 // =============================================================================
 
 import { BaseCommand } from './BaseCommand';

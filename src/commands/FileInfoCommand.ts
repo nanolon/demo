@@ -1,6 +1,6 @@
 // =============================================================================
 // src/commands/FileInfoCommand.ts
-// Komplexerer Command mit Document-Analyse und Service-Dependencies
+// More complex command with document analysis and service dependencies
 // =============================================================================
 
 import * as vscode from 'vscode';

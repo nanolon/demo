@@ -1,6 +1,6 @@
 // =============================================================================
 // src/commands/ConfigTestCommand.ts
-// Command für Demonstration der Configuration-Service-Integration
+// Command for demonstrating configuration service integration
 // =============================================================================
 
 import { BaseCommand } from './BaseCommand';
@@ -23,18 +23,18 @@ export class ConfigTestCommand extends BaseCommand {
             return;
         }
         
-        // Aktuelle Konfiguration auslesen
+        // Read current configuration
         const currentLogLevel = configService.get<LogLevel>('logLevel', 'info');
         const autoSave = configService.get<boolean>('autoSave', true);
         
-        // Log-Level über Service setzen
+        // Set log level via service
         logger?.setLogLevel(currentLogLevel);
         
         const configInfo = `Current Config: LogLevel=${currentLogLevel}, AutoSave=${autoSave}`;
         logger?.log(configInfo, 'info');
         messageService.showInfo(configInfo);
         
-        // Interaktive Konfigurationsänderung
+        // Interactive configuration change
         const newLogLevel = await messageService.askUser(
             'Choose new log level:', 
             'debug', 'info', 'warn', 'error'

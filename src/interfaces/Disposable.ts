@@ -1,6 +1,6 @@
 // =============================================================================
 // src/interfaces/Disposable.ts  
-// Erweitert VSCode Disposable für Extension-spezifische Cleanup-Logik
+// Extends VSCode Disposable for extension-specific cleanup logic
 // =============================================================================
 
 import * as vscode from 'vscode';

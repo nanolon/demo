@@ -1,6 +1,6 @@
 // =============================================================================
 // src/services/MessageService.ts
-// Service für einheitliche User-Messages (Cross-Cutting Concern)
+// Service for unified user messages (Cross-Cutting Concern)
 // =============================================================================
 
 import * as vscode from 'vscode';
@@ -24,7 +24,7 @@ export class MessageService implements Disposable {
     }
     
     public dispose(): void {
-        // Cleanup falls erforderlich
+        // Cleanup if required
         console.log('MessageService disposed');
     }
 }
