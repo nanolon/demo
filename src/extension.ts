@@ -1,13 +1,13 @@
 import * as vscode from 'vscode';
 
 /**
- * Aktivierungsfunktion der Extension.
- * Wird einmalig beim ersten Aufruf des Commands aufgerufen.
+ * Extension activation function.
+ * Called once when the command is first invoked.
  */
 export function activate(context: vscode.ExtensionContext) {
-    console.log('Extension "insert-comment-example" wurde aktiviert');
+    console.log('Extension "insert-comment-example" was activated');
 
-    // Registrierung des Commands zum Einfügen von TODO-Kommentaren
+    // Register the command for inserting TODO comments
     const disposable = vscode.commands.registerCommand('insertComment.insert', () => {
         insertTodoComment();
     });
@@ -16,19 +16,19 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 /**
- * Fügt einen TODO-Kommentar oberhalb der aktuellen Cursor-Position ein.
+ * Inserts a TODO comment above the current cursor position.
  * 
- * Funktionsweise:
- * 1. Ermittlung des aktiven Editors
- * 2. Bestimmung der aktuellen Cursor-Position
- * 3. Einfügung einer neuen Zeile oberhalb der Cursor-Position
- * 4. Hinzufügung des TODO-Kommentars mit korrekter Einrückung
+ * Functionality:
+ * 1. Determine the active editor
+ * 2. Get the current cursor position
+ * 3. Insert a new line above the cursor position
+ * 4. Add the TODO comment with correct indentation
  */
 async function insertTodoComment(): Promise<void> {
     const editor = vscode.window.activeTextEditor;
     
     if (!editor) {
-        vscode.window.showWarningMessage('Kein aktiver Editor gefunden');
+        vscode.window.showWarningMessage('No active editor found');
         return;
     }
 
@@ -36,38 +36,38 @@ async function insertTodoComment(): Promise<void> {
     const selection = editor.selection;
     const currentLine = selection.active.line;
     
-    // Ermittlung der Einrückung der aktuellen Zeile
+    // Determine the indentation of the current line
     const currentLineText = document.lineAt(currentLine).text;
     const indentation = getIndentation(currentLineText);
     
-    // TODO-Kommentar mit entsprechender Einrückung
-    const todoComment = `${indentation}// TODO: Kommentieren Sie diesen Abschnitt\n`;
+    // TODO comment with corresponding indentation
+    const todoComment = `${indentation}// TODO: Comment this section\n`;
     
-    // Position am Anfang der aktuellen Zeile
+    // Position at the beginning of the current line
     const insertPosition = new vscode.Position(currentLine, 0);
     
     try {
-        // Einfügung des Kommentars
+        // Insert the comment
         await editor.edit(editBuilder => {
             editBuilder.insert(insertPosition, todoComment);
         });
         
-        // Cursor eine Zeile nach unten setzen (auf die ursprünglich aktuelle Zeile)
+        // Set cursor one line down (to the originally current line)
         const newCursorPosition = new vscode.Position(currentLine + 1, selection.active.character);
         editor.selection = new vscode.Selection(newCursorPosition, newCursorPosition);
         
-        vscode.window.showInformationMessage('TODO-Kommentar eingefügt');
+        vscode.window.showInformationMessage('TODO comment inserted');
         
     } catch (error) {
-        vscode.window.showErrorMessage(`Fehler beim Einfügen des Kommentars: ${error}`);
+        vscode.window.showErrorMessage(`Error inserting comment: ${error}`);
     }
 }
 
 /**
- * Extrahiert die Einrückung (Leerzeichen/Tabs) am Anfang einer Zeile.
+ * Extracts the indentation (spaces/tabs) at the beginning of a line.
  * 
- * @param lineText Der Text der Zeile
- * @returns Die Einrückung als String (Leerzeichen oder Tabs)
+ * @param lineText The text of the line
+ * @returns The indentation as a string (spaces or tabs)
  */
 function getIndentation(lineText: string): string {
     const match = lineText.match(/^(\s*)/);
@@ -75,9 +75,9 @@ function getIndentation(lineText: string): string {
 }
 
 /**
- * Deaktivierungsfunktion der Extension.
- * Wird beim Herunterfahren von VSCode oder beim Deaktivieren der Extension aufgerufen.
+ * Extension deactivation function.
+ * Called when VSCode shuts down or when the extension is deactivated.
  */
 export function deactivate() {
-    console.log('Extension "insert-comment-example" wurde deaktiviert');
+    console.log('Extension "insert-comment-example" was deactivated');
 }

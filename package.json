@@ -1,7 +1,7 @@
 {
   "name": "insert-comment-example",
   "displayName": "Insert Comment Example",
-  "description": "VSCode Extension zum Einfügen von TODO-Kommentaren oberhalb der Cursor-Position",
+  "description": "VSCode Extension for inserting TODO comments above the cursor position",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.102.0"

@@ -1,34 +1,34 @@
 # Insert Comment Example - VSCode Extension
 
-Eine VSCode Extension zur automatischen Einfügung von TODO-Kommentaren oberhalb der aktuellen Cursor-Position. Das Projekt demonstriert grundlegende Extension-Entwicklungsprinzipien in TypeScript.
+A VSCode extension for automatically inserting TODO comments above the current cursor position. The project demonstrates basic extension development principles in TypeScript.
 
-## Funktionalität
+## Functionality
 
-### Verhalten
-Die Extension registriert den Command `insertComment.insert`, der beim Aufruf folgende Aktionen ausführt:
+### Behavior
+The extension registers the command `insertComment.insert`, which performs the following actions when called:
 
-1. **Positionsermittlung**: Bestimmung der aktuellen Cursor-Position im aktiven Editor
-2. **Einrückungsanalyse**: Extraktion der Einrückung (Whitespace/Tabs) der aktuellen Zeile
-3. **Kommentareinfügung**: Insertion der Zeile `// TODO: Kommentieren Sie diesen Abschnitt` oberhalb der Cursor-Position
-4. **Cursor-Repositionierung**: Verschiebung des Cursors auf die ursprüngliche Position (eine Zeile nach unten)
+1. **Position Detection**: Determining the current cursor position in the active editor
+2. **Indentation Analysis**: Extracting the indentation (whitespace/tabs) of the current line
+3. **Comment Insertion**: Inserting the line `// TODO: Comment this section` above the cursor position
+4. **Cursor Repositioning**: Moving the cursor to the original position (one line down)
 
-### Aufruf
-Der Command kann auf drei Arten ausgeführt werden:
+### Invocation
+The command can be executed in three ways:
 
 1. **Command Palette**: `Ctrl+Shift+P` → `Insert TODO Comment`
-2. **Programmatisc**h: `vscode.commands.executeCommand('insertComment.insert')`
-3. **Keybinding** (optional konfigurierbar): In `keybindings.json` definierbar
+2. **Programmatically**: `vscode.commands.executeCommand('insertComment.insert')`
+3. **Keybinding** (optionally configurable): Definable in `keybindings.json`
 
-## Extension-Architektur
+## Extension Architecture
 
-### Aktivierungsmodell
-Die Extension nutzt VSCodes **Lazy Loading**-Prinzip:
+### Activation Model
+The extension uses VSCode's **Lazy Loading** principle:
 
-- **Aktivierung**: Erfolgt erst beim ersten Aufruf des registrierten Commands
-- **Deaktivierung**: Automatisch beim VSCode-Shutdown oder manueller Extension-Deaktivierung
-- **Lifecycle-Events**: `activate()` und `deactivate()` als Haupteinstiegspunkte
+- **Activation**: Occurs only on first call of the registered command
+- **Deactivation**: Automatically on VSCode shutdown or manual extension deactivation
+- **Lifecycle Events**: `activate()` and `deactivate()` as main entry points
 
-### Komponentenstruktur
+### Component Structure
 
 #### package.json (Extension Manifest)
 ```json
@@ -44,45 +44,45 @@ Die Extension nutzt VSCodes **Lazy Loading**-Prinzip:
 }
 ```
 
-Definiert Commands, die in der Command Palette verfügbar werden. Der `command`-Identifier ist global eindeutig und muss der Registrierung in TypeScript entsprechen.
+Defines commands that become available in the Command Palette. The `command` identifier is globally unique and must match the registration in TypeScript.
 
-#### extension.ts (Hauptmodul)
-Das Modul exportiert zwei obligatorische Funktionen:
+#### extension.ts (Main Module)
+The module exports two mandatory functions:
 
-- **`activate(context: ExtensionContext)`**: Extension-Initialisierung, Command-Registrierung
-- **`deactivate()`**: Cleanup-Logik (in diesem Fall minimal)
+- **`activate(context: ExtensionContext)`**: Extension initialization, command registration
+- **`deactivate()`**: Cleanup logic (minimal in this case)
 
-### API-Integration
+### API Integration
 
-#### Editor-Zugriff
+#### Editor Access
 ```typescript
 const editor = vscode.window.activeTextEditor;
 const document = editor.document;
 const selection = editor.selection;
 ```
 
-VSCode stellt über `vscode.window.activeTextEditor` direkten Zugriff auf den aktuell fokussierten Editor bereit. Das `TextDocument` bietet read-only Zugriff auf Inhalte, während `TextEditor` Modifikationen ermöglicht.
+VSCode provides direct access to the currently focused editor via `vscode.window.activeTextEditor`. The `TextDocument` provides read-only access to content, while `TextEditor` enables modifications.
 
-#### Text-Manipulation
+#### Text Manipulation
 ```typescript
 await editor.edit(editBuilder => {
     editBuilder.insert(insertPosition, todoComment);
 });
 ```
 
-Textänderungen erfolgen über das **Edit Builder Pattern**. VSCode garantiert atomare Operationen und Undo/Redo-Kompatibilität.
+Text changes occur via the **Edit Builder Pattern**. VSCode guarantees atomic operations and undo/redo compatibility.
 
-#### Positionsmodell
+#### Position Model
 ```typescript
 const insertPosition = new vscode.Position(line, character);
 const selection = new vscode.Selection(start, end);
 ```
 
-VSCode verwendet 0-basierte Zeilen- und Spaltenindizierung. `Position` definiert einen Punkt, `Selection` einen Bereich im Dokument.
+VSCode uses 0-based line and column indexing. `Position` defines a point, `Selection` defines a range in the document.
 
-## Entwicklungssetup
+## Development Setup
 
-### Voraussetzungen
+### Prerequisites
 - Node.js 18+
 - Yarn Package Manager
 - VSCode 1.102.0+
@@ -92,12 +92,12 @@ VSCode verwendet 0-basierte Zeilen- und Spaltenindizierung. `Position` definiert
 yarn install
 ```
 
-### Entwicklung
+### Development
 ```bash
 # Compilation
 yarn compile
 
-# Watch Mode (automatische Recompilation)
+# Watch Mode (automatic recompilation)
 yarn watch
 
 # Testing
@@ -108,25 +108,25 @@ yarn lint
 ```
 
 ### Debugging
-1. `F5` drücken → neue VSCode-Instanz mit Extension
-2. `Ctrl+Shift+P` → `Insert TODO Comment` ausführen
-3. Breakpoints in `src/extension.ts` setzen
+1. Press `F5` → new VSCode instance with extension
+2. `Ctrl+Shift+P` → execute `Insert TODO Comment`
+3. Set breakpoints in `src/extension.ts`
 
-## Architektur-Patterns
+## Architecture Patterns
 
 ### Extension Host Pattern
-VSCode Extensions laufen in einem separaten Node.js-Prozess (Extension Host), isoliert vom Hauptprozess. Kommunikation erfolgt über VSCode API-Abstraktionen.
+VSCode extensions run in a separate Node.js process (Extension Host), isolated from the main process. Communication occurs via VSCode API abstractions.
 
 ### Command Pattern
-Commands sind lose gekoppelte, ausführbare Einheiten. Sie können über Command Palette, Keybindings oder programmatisch ausgeführt werden.
+Commands are loosely coupled, executable units. They can be executed via Command Palette, keybindings, or programmatically.
 
 ### Dependency Injection
-Der `ExtensionContext` wird bei Aktivierung injiziert und enthält Extension-spezifische Metadaten und Lifecycle-Management.
+The `ExtensionContext` is injected during activation and contains extension-specific metadata and lifecycle management.
 
-## Erweiterungsmöglichkeiten
+## Extension Possibilities
 
-### Konfiguration
-Hinzufügung von `contributes.configuration` in `package.json` für benutzerdefinierten Kommentartext:
+### Configuration
+Adding `contributes.configuration` in `package.json` for custom comment text:
 
 ```json
 "contributes": {
@@ -134,8 +134,8 @@ Hinzufügung von `contributes.configuration` in `package.json` für benutzerdefi
     "properties": {
       "insertComment.template": {
         "type": "string",
-        "default": "// TODO: Kommentieren Sie diesen Abschnitt",
-        "description": "Template für eingefügte Kommentare"
+        "default": "// TODO: Comment this section",
+        "description": "Template for inserted comments"
       }
     }
   }
@@ -143,7 +143,7 @@ Hinzufügung von `contributes.configuration` in `package.json` für benutzerdefi
 ```
 
 ### Keybindings
-Standard-Tastenkombination in `package.json`:
+Default key combination in `package.json`:
 
 ```json
 "contributes": {
@@ -157,12 +157,12 @@ Standard-Tastenkombination in `package.json`:
 }
 ```
 
-### Sprachspezifische Kommentare
-Erweiterung um Unterstützung verschiedener Kommentarsyntaxen basierend auf Dateierweiterung oder Language Mode.
+### Language-Specific Comments
+Extension to support different comment syntaxes based on file extension or Language Mode.
 
-## Build und Distribution
+## Build and Distribution
 
-### VSIX-Paket erstellen
+### Create VSIX Package
 ```bash
 vsce package
 ```
@@ -172,4 +172,4 @@ vsce package
 code --install-extension insert-comment-example-0.0.1.vsix
 ```
 
-Das resultierende `.vsix`-Paket ist eine ZIP-Datei mit Manifest und kompilierten JavaScript-Dateien, installierbar in jeder VSCode-Instanz.
+The resulting `.vsix` package is a ZIP file with manifest and compiled JavaScript files, installable in any VSCode instance.
