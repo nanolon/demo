@@ -1,42 +1,42 @@
 # VSCode Extension Demo - TreeView Integration
 
-## Überblick
+## Overview
 
-Diese Extension demonstriert die grundlegenden Konzepte der VSCode Extension-Entwicklung mit TypeScript, einschließlich der Integration von TreeViews in die Explorer-Ansicht.
+This extension demonstrates the fundamental concepts of VSCode extension development with TypeScript, including the integration of TreeViews into the Explorer view.
 
 ## Features
 
 ### Hello World Command
 - **Command ID**: `demo.helloWorld`
-- **Ausführung**: Über Command Palette (`Ctrl+Shift+P` > "Hello World")
-- **Funktion**: Zeigt eine Informationsmeldung an
+- **Execution**: Via Command Palette (`Ctrl+Shift+P` > "Hello World")
+- **Function**: Displays an information message
 
 ### Example TreeView
 - **View ID**: `exampleView`
-- **Position**: Explorer-Panel (linke Seitenleiste)
-- **Inhalt**: Statische Liste mit drei Einträgen ("Eintrag A", "Eintrag B", "Eintrag C")
+- **Position**: Explorer panel (left sidebar)
+- **Content**: Static list with three entries ("Entry A", "Entry B", "Entry C")
 
-## TreeView-Architektur
+## TreeView Architecture
 
-### Komponenten
+### Components
 
-Die TreeView-Implementation besteht aus drei Hauptkomponenten:
+The TreeView implementation consists of three main components:
 
-1. **TreeItem-Klasse** (`ExampleTreeItem`)
-   - Erbt von `vscode.TreeItem`
-   - Definiert einzelne Knoten mit Label, Icon und Tooltip
-   - Bestimmt Kollaps-Zustand der Knoten
+1. **TreeItem Class** (`ExampleTreeItem`)
+   - Inherits from `vscode.TreeItem`
+   - Defines individual nodes with label, icon, and tooltip
+   - Determines collapse state of nodes
 
 2. **TreeDataProvider** (`ExampleTreeDataProvider`)
-   - Implementiert `vscode.TreeDataProvider<T>`
-   - Stellt Daten für die TreeView bereit
-   - Behandelt Refresh-Events
+   - Implements `vscode.TreeDataProvider<T>`
+   - Provides data for the TreeView
+   - Handles refresh events
 
-3. **View-Registrierung**
-   - Konfiguration in `package.json` unter `contributes.views`
-   - Registrierung des DataProviders in der `activate()`-Funktion
+3. **View Registration**
+   - Configuration in `package.json` under `contributes.views`
+   - Registration of DataProvider in the `activate()` function
 
-### Konfiguration in package.json
+### Configuration in package.json
 
 ```json
 {
@@ -54,61 +54,61 @@ Die TreeView-Implementation besteht aus drei Hauptkomponenten:
 }
 ```
 
-**Parameter-Erklärung:**
-- `explorer`: Platziert die View im Explorer-Panel
-- `id`: Eindeutige Bezeichnung für programmatischen Zugriff
-- `name`: Angezeigter Titel in der UI
-- `when`: Bedingung für Sichtbarkeit (`"true"` = immer sichtbar)
+**Parameter Explanation:**
+- `explorer`: Places the view in the Explorer panel
+- `id`: Unique identifier for programmatic access
+- `name`: Displayed title in the UI
+- `when`: Condition for visibility (`"true"` = always visible)
 
-### Anzeigeverhalten
+### Display Behavior
 
-Die TreeView wird **automatisch angezeigt**, wenn:
-- Die Extension aktiviert ist
-- Das Explorer-Panel geöffnet ist
-- Die `when`-Bedingung erfüllt ist (hier: `"true"`)
+The TreeView is **automatically displayed** when:
+- The extension is activated
+- The Explorer panel is opened
+- The `when` condition is met (here: `"true"`)
 
-**Aktivierung der Extension:**
-- Beim ersten Ausführen eines registrierten Commands
-- Bei VSCode-Start, falls `activationEvents` definiert sind
-- Manuell über Extension-Panel
+**Extension Activation:**
+- When first executing a registered command
+- On VSCode startup, if `activationEvents` are defined
+- Manually via Extension panel
 
-## Code-Erweiterungen
+## Code Extensions
 
-### Dynamische Inhalte
+### Dynamic Content
 
-Erweitern Sie `getChildren()` für dynamische Daten:
+Extend `getChildren()` for dynamic data:
 
 ```typescript
 getChildren(element?: ExampleTreeItem): Thenable<ExampleTreeItem[]> {
     if (!element) {
-        // Dynamische Daten laden
+        // Load dynamic data
         return this.loadDataFromSource();
     }
     return Promise.resolve([]);
 }
 
 private async loadDataFromSource(): Promise<ExampleTreeItem[]> {
-    // Beispiel: Dateisystem, API-Calls, Workspace-Inhalte
+    // Example: File system, API calls, workspace contents
     const items = await someAsyncDataSource();
     return items.map(item => new ExampleTreeItem(item.name));
 }
 ```
 
-### Hierarchische Strukturen
+### Hierarchical Structures
 
-Für verschachtelte Bäume:
+For nested trees:
 
 ```typescript
 getChildren(element?: ExampleTreeItem): Thenable<ExampleTreeItem[]> {
     if (!element) {
-        // Root-Ebene
+        // Root level
         return Promise.resolve([
             new ExampleTreeItem('Parent A', vscode.TreeItemCollapsibleState.Collapsed),
             new ExampleTreeItem('Parent B', vscode.TreeItemCollapsibleState.Collapsed)
         ]);
     }
     
-    // Child-Ebene basierend auf Parent
+    // Child level based on parent
     switch (element.label) {
         case 'Parent A':
             return Promise.resolve([
@@ -125,9 +125,9 @@ getChildren(element?: ExampleTreeItem): Thenable<ExampleTreeItem[]> {
 }
 ```
 
-### Context-Menüs und Commands
+### Context Menus and Commands
 
-Fügen Sie in `package.json` hinzu:
+Add to `package.json`:
 
 ```json
 {
@@ -150,7 +150,7 @@ Fügen Sie in `package.json` hinzu:
 }
 ```
 
-Registrieren Sie das Command:
+Register the command:
 
 ```typescript
 const itemClickCommand = vscode.commands.registerCommand('exampleView.itemClicked', (item: ExampleTreeItem) => {
@@ -159,31 +159,31 @@ const itemClickCommand = vscode.commands.registerCommand('exampleView.itemClicke
 context.subscriptions.push(itemClickCommand);
 ```
 
-### Refresh-Funktionalität
+### Refresh Functionality
 
-Die implementierte `refresh()`-Methode ermöglicht programmatische Updates:
+The implemented `refresh()` method enables programmatic updates:
 
 ```typescript
-// Manueller Refresh
+// Manual refresh
 treeDataProvider.refresh();
 
-// Automatischer Refresh bei Dateiänderungen
+// Automatic refresh on file changes
 const watcher = vscode.workspace.createFileSystemWatcher('**/*');
 watcher.onDidChange(() => treeDataProvider.refresh());
 context.subscriptions.push(watcher);
 ```
 
-## Installation und Test
+## Installation and Testing
 
-1. **Entwicklungsumgebung starten**: `F5` in VSCode
-2. **TreeView finden**: Explorer-Panel → "Example View" Sektion
-3. **Command testen**: `Ctrl+Shift+P` → "Hello World"
+1. **Start development environment**: `F5` in VSCode
+2. **Find TreeView**: Explorer panel → "Example View" section
+3. **Test command**: `Ctrl+Shift+P` → "Hello World"
 
-## Typische Anwendungsfälle
+## Typical Use Cases
 
-- **Projekt-Explorer**: Spezielle Dateisicht für Framework-Strukturen
-- **Dependency-Viewer**: Anzeige von Package-Abhängigkeiten
-- **Task-Management**: Integration von Build-Tasks oder TODOs
-- **API-Explorer**: Darstellung von REST-Endpoints oder Datenbank-Schemata
+- **Project Explorer**: Specialized file view for framework structures
+- **Dependency Viewer**: Display of package dependencies
+- **Task Management**: Integration of build tasks or TODOs
+- **API Explorer**: Representation of REST endpoints or database schemas
 
-Die TreeView-API bietet durch ihre Flexibilität umfassende Möglichkeiten für domänenspezifische Navigationsstrukturen innerhalb von VSCode Extensions.
+The TreeView API offers comprehensive possibilities for domain-specific navigation structures within VSCode extensions through its flexibility.

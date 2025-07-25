@@ -44,9 +44,9 @@ class ExampleTreeDataProvider implements vscode.TreeDataProvider<ExampleTreeItem
 		// Since we have a flat list, we only return items for the root level
 		if (!element) {
 			return Promise.resolve([
-				new ExampleTreeItem('Eintrag A'),
-				new ExampleTreeItem('Eintrag B'),
-				new ExampleTreeItem('Eintrag C')
+				new ExampleTreeItem('Item A'),
+				new ExampleTreeItem('Item B'),
+				new ExampleTreeItem('Item C')
 			]);
 		}
 		
