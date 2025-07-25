@@ -34,6 +34,30 @@
         "category": "Demo"
       }
     ],
+    "keybindings": [
+      {
+        "command": "demo.helloWorld",
+        "key": "ctrl+shift+h",
+        "mac": "cmd+shift+h",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "demo.fileInfo",
+        "key": "ctrl+shift+i",
+        "mac": "cmd+shift+i",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "demo.showLog",
+        "key": "ctrl+shift+l",
+        "mac": "cmd+shift+l"
+      },
+      {
+        "command": "demo.configTest",
+        "key": "ctrl+shift+c",
+        "mac": "cmd+shift+c"
+      }
+    ],
     "configuration": {
       "title": "Demo Extension (OOP)",
       "properties": {
