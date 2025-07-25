@@ -1,24 +1,24 @@
-# TypeScript Demo Extension für VSCode
+# TypeScript Demo Extension for VSCode
 
-Eine umfassende Demonstration der wichtigsten TypeScript-Konzepte für VSCode Extension-Entwicklung, speziell entwickelt für Java-Entwickler mit Eclipse-Hintergrund.
+A comprehensive demonstration of the most important TypeScript concepts for VSCode extension development, specifically designed for Java developers with an Eclipse background.
 
-## 🎯 Zweck und Lernziele
+## 🎯 Purpose and Learning Objectives
 
-Diese Extension ist ein **didaktisches Projekt** zur Vermittlung von TypeScript-Konzepten, die sich fundamental von Java unterscheiden. Sie demonstriert praxisrelevante TypeScript-Features im Kontext der VSCode Extension API.
+This extension is a **didactic project** for conveying TypeScript concepts that fundamentally differ from Java. It demonstrates practically relevant TypeScript features in the context of the VSCode Extension API.
 
-### Nach der Verwendung dieser Extension verstehen Sie:
+### After using this extension, you will understand:
 
-- **Strukturelle Typisierung** vs. Javas nominale Typisierung
-- **Typinferenz** und automatische Typableitung
-- **Union Types** für flexible APIs
-- **Asynchrone Programmierung** mit async/await
-- **Interface-basierte Konfiguration** mit optionalen Properties
-- **Generische Hilfsfunktionen** und Type Guards
-- **VSCode Extension Lifecycle** und Event-Handling
+* **Structural typing** vs. Java’s nominal typing
+* **Type inference** and automatic type deduction
+* **Union types** for flexible APIs
+* **Asynchronous programming** with async/await
+* **Interface-based configuration** with optional properties
+* **Generic helper functions** and type guards
+* **VSCode extension lifecycle** and event handling
 
-## 🏗️ Architektur und TypeScript-Konzepte
+## 🏗️ Architecture and TypeScript Concepts
 
-### 1. Strukturelle Typisierung
+### 1. Structural Typing
 
 ```typescript
 interface CommandDefinition {
@@ -27,37 +27,37 @@ interface CommandDefinition {
     category?: string;
 }
 
-// Strukturell kompatibel - keine explizite Implementierung nötig
+// Structurally compatible – no explicit implementation needed
 const helloCommand: CommandDefinition = { 
     id: 'demo.helloWorld', 
     title: 'Hello World' 
 };
 ```
 
-**Java-Unterschied:** TypeScript prüft die Objektstruktur, nicht die Klassenhierarchie. Ein Objekt ist kompatibel, wenn es die erforderlichen Properties besitzt.
+**Java difference:** TypeScript checks the object structure, not the class hierarchy. An object is compatible if it has the required properties.
 
-### 2. Union Types und Typinferenz
+### 2. Union Types and Type Inference
 
 ```typescript
 type MessageLevel = 'info' | 'warn' | 'error';
 
 const extensionState = {
-    isActive: false,    // TypeScript inferiert: boolean
-    commandCount: 0,    // TypeScript inferiert: number
-    lastCommand: 'none' as const  // Literal Type
+    isActive: false,    // TypeScript infers: boolean
+    commandCount: 0,    // TypeScript infers: number
+    lastCommand: 'none' as const  // Literal type
 };
 ```
 
-**Java-Unterschied:** Union Types ermöglichen Variablen mit mehreren möglichen Typen. Typinferenz reduziert explizite Typangaben.
+**Java difference:** Union types allow variables with multiple possible types. Type inference reduces explicit type declarations.
 
-### 3. Asynchrone Programmierung
+### 3. Asynchronous Programming
 
 ```typescript
 async function saveAllOpenFiles(): Promise<number> {
     let savedCount = 0;
     for (const document of vscode.workspace.textDocuments) {
         if (document.isDirty && !document.isUntitled) {
-            const success = await document.save(); // await statt .then()
+            const success = await document.save(); // await instead of .then()
             if (success) savedCount++;
         }
     }
@@ -65,9 +65,9 @@ async function saveAllOpenFiles(): Promise<number> {
 }
 ```
 
-**Java-Unterschied:** async/await ist deutlich lesbarer als CompletableFuture und integriert sich nahtlos mit try/catch.
+**Java difference:** async/await is significantly more readable than CompletableFuture and integrates seamlessly with try/catch.
 
-### 4. Interface-basierte Konfiguration
+### 4. Interface-Based Configuration
 
 ```typescript
 interface ExtensionConfig {
@@ -76,15 +76,15 @@ interface ExtensionConfig {
         autoSave: boolean;
         logLevel: MessageLevel;
     };
-    features?: {  // Optional mit ?
+    features?: {  // Optional with ?
         experimentalMode: boolean;
     };
 }
 ```
 
-**Java-Unterschied:** Optionale Properties mit `?`, Optional Chaining mit `?.` und Nullish Coalescing mit `??`.
+**Java difference:** Optional properties with `?`, optional chaining with `?.` and nullish coalescing with `??`.
 
-### 5. Generische Funktionen und Type Guards
+### 5. Generic Functions and Type Guards
 
 ```typescript
 function getWorkspaceConfig<T>(section: string, key: string, defaultValue: T): T {
@@ -96,56 +96,59 @@ function isTextEditor(obj: any): obj is vscode.TextEditor {
 }
 ```
 
-**Java-Unterschied:** Type Guards bieten Typsicherheit zur Laufzeit. Generics mit automatischer Typinferenz.
+**Java difference:** Type guards provide runtime type safety. Generics with automatic type inference.
 
-## 🚀 Installation und Ausführung
+## 🚀 Installation and Execution
 
-### Voraussetzungen
-- Node.js (Version 18+)
-- Visual Studio Code
-- Yarn oder npm
+### Requirements
+
+* Node.js (version 18+)
+* Visual Studio Code
+* Yarn or npm
 
 ### Setup
+
 ```bash
-# Dependencies installieren
+# Install dependencies
 yarn install
 
-# TypeScript kompilieren
+# Compile TypeScript
 yarn compile
 
-# Extension im Development Mode starten
-# Drücken Sie F5 in VSCode oder:
+# Start extension in development mode
+# Press F5 in VSCode or:
 code --extensionDevelopmentPath=.
 ```
 
-### Build und Watch Mode
+### Build and Watch Mode
+
 ```bash
-# Kontinuierlicher Build bei Änderungen
+# Continuous build on changes
 yarn watch
 
-# Einmalige Kompilierung
+# One-time compilation
 yarn compile
 
 # Linting
 yarn lint
 ```
 
-## 🎮 Verfügbare Commands
+## 🎮 Available Commands
 
-Öffnen Sie die Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) und suchen Sie nach "Demo":
+Open the command palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and search for "Demo":
 
-| Command | Beschreibung | TypeScript-Konzept |
-|---------|--------------|-------------------|
-| `Demo: Hello World` | Grundlegende Message-Anzeige | Strukturelle Typisierung, Union Types |
-| `Demo: Save All Files` | Asynchrones Speichern aller geöffneten Dateien | async/await, Promise-Behandlung |
-| `Demo: Analyze Current File` | Analysiert die aktuelle Datei | Type Guards, Optional Chaining |
-| `Demo: Show Configuration` | Zeigt Workspace-Konfiguration | Generics, Typinferenz |
-| `Demo: Show Extension Stats` | Extension-Nutzungsstatistiken | State Management, Template Literals |
-| `Demo: Analyze File (Structural Example)` | Strukturelle Typisierung Demo | Strukturelle vs. nominale Typisierung |
+| Command                                   | Description                         | TypeScript Concept                  |
+| ----------------------------------------- | ----------------------------------- | ----------------------------------- |
+| `Demo: Hello World`                       | Basic message display               | Structural typing, union types      |
+| `Demo: Save All Files`                    | Asynchronously saves all open files | async/await, promise handling       |
+| `Demo: Analyze Current File`              | Analyzes the current file           | Type guards, optional chaining      |
+| `Demo: Show Configuration`                | Displays workspace configuration    | Generics, type inference            |
+| `Demo: Show Extension Stats`              | Extension usage statistics          | State management, template literals |
+| `Demo: Analyze File (Structural Example)` | Structural typing demo              | Structural vs. nominal typing       |
 
-## ⚙️ Konfiguration
+## ⚙️ Configuration
 
-Die Extension unterstützt verschiedene Workspace-Einstellungen in der `settings.json`:
+The extension supports various workspace settings in `settings.json`:
 
 ```json
 {
@@ -161,125 +164,142 @@ Die Extension unterstützt verschiedene Workspace-Einstellungen in der `settings
 }
 ```
 
-### Konfigurationsoptionen
+### Configuration Options
 
-| Setting | Typ | Default | Beschreibung |
-|---------|-----|---------|--------------|
-| `demo.autoSave` | boolean | `true` | Automatisches Speichern aktivieren |
-| `demo.logLevel` | string | `"info"` | Log-Level: "info", "warn", "error" |
-| `demo.maxFiles` | number | `100` | Maximale Anzahl zu verarbeitender Dateien |
-| `demo.logging` | boolean | `false` | Logging aktivieren |
-| `demo.extensions` | string[] | `["ts", "js"]` | Zu berücksichtigende Dateierweiterungen |
-| `demo.experimental` | object | `{}` | Experimentelle Features |
+| Setting             | Type      | Default        | Description                        |
+| ------------------- | --------- | -------------- | ---------------------------------- |
+| `demo.autoSave`     | boolean   | `true`         | Enable auto-save                   |
+| `demo.logLevel`     | string    | `"info"`       | Log level: "info", "warn", "error" |
+| `demo.maxFiles`     | number    | `100`          | Max number of files to process     |
+| `demo.logging`      | boolean   | `false`        | Enable logging                     |
+| `demo.extensions`   | string\[] | `["ts", "js"]` | File extensions to include         |
+| `demo.experimental` | object    | `{}`           | Experimental features              |
 
-## 📚 Code-Struktur und Lernpfad
+## 📚 Code Structure and Learning Path
 
-### Empfohlene Reihenfolge zum Studium:
+### Recommended study order:
 
-1. **Strukturelle Typisierung** (Zeilen 10-30)
-   - `CommandDefinition` Interface
-   - Strukturell kompatible Objekte
-   - `registerCommand` Hilfsfunktion
+1. **Structural Typing** (lines 10–30)
 
-2. **Union Types** (Zeilen 35-60)
-   - `MessageLevel` Type
-   - `showTypedMessage` Funktion
-   - Automatische Typinferenz
+   * `CommandDefinition` interface
+   * Structurally compatible objects
+   * `registerCommand` helper function
 
-3. **Async/Await** (Zeilen 65-95)
-   - `saveAllOpenFiles` Promise-Funktion
-   - `handleSaveAllCommand` mit Error-Handling
-   - VSCode API Integration
+2. **Union Types** (lines 35–60)
 
-4. **Interface-Konfiguration** (Zeilen 100-145)
-   - `ExtensionConfig` Interface
-   - Optional Properties
-   - Workspace-Integration
+   * `MessageLevel` type
+   * `showTypedMessage` function
+   * Automatic type inference
 
-5. **Generics und Type Guards** (Zeilen 150-190)
-   - Generische `getWorkspaceConfig` Funktion
-   - `isTextEditor` Type Guard
-   - Sichere API-Verwendung
+3. **Async/Await** (lines 65–95)
 
-6. **Extension Integration** (Zeilen 195-Ende)
-   - Command Registry
-   - Event-Listener
-   - Lifecycle Management
+   * `saveAllOpenFiles` promise function
+   * `handleSaveAllCommand` with error handling
+   * VSCode API integration
 
-## 🔍 Praxisübungen
+4. **Interface Configuration** (lines 100–145)
 
-### Übung 1: Command erweitern
-Fügen Sie einen neuen Command hinzu, der:
-- Die Anzahl der Zeichen im aktuellen Dokument zählt
-- Eine typisierte Konfiguration verwendet
-- Asynchron arbeitet
+   * `ExtensionConfig` interface
+   * Optional properties
+   * Workspace integration
 
-### Übung 2: Konfiguration erweitern
-Erweitern Sie `ExtensionConfig` um:
-- Eine neue optionale Sektion `themes`
-- Union Type für Theme-Namen
-- Default-Werte in `loadExtensionConfig`
+5. **Generics and Type Guards** (lines 150–190)
 
-### Übung 3: Type Guard implementieren
-Erstellen Sie einen Type Guard für:
+   * Generic `getWorkspaceConfig` function
+   * `isTextEditor` type guard
+   * Safe API usage
+
+6. **Extension Integration** (lines 195–end)
+
+   * Command registry
+   * Event listener
+   * Lifecycle management
+
+## 🔍 Practical Exercises
+
+### Exercise 1: Extend Command
+
+Add a new command that:
+
+* Counts the number of characters in the current document
+* Uses typed configuration
+* Works asynchronously
+
+### Exercise 2: Extend Configuration
+
+Extend `ExtensionConfig` with:
+
+* A new optional section `themes`
+* Union type for theme names
+* Default values in `loadExtensionConfig`
+
+### Exercise 3: Implement Type Guard
+
+Create a type guard for:
+
 ```typescript
 function isMarkdownDocument(obj: any): obj is vscode.TextDocument {
-    // Implementierung
+    // Implementation
 }
 ```
 
-## 🔬 TypeScript vs. Java - Vergleichstabelle
+## 🔬 TypeScript vs. Java – Comparison Table
 
-| Konzept | Java | TypeScript |
-|---------|------|------------|
-| **Typsystem** | Nominal (Klassenhierarchie) | Strukturell (Duck Typing) |
-| **Typinferenz** | Begrenzt (var, diamond operator) | Umfassend (automatisch) |
-| **Null-Sicherheit** | Optional\<T\>, verbose | ?., ??, eleganter |
-| **Async Programming** | CompletableFuture, verbose | async/await, intuitiv |
-| **Union Types** | Nicht verfügbar | Native Unterstützung |
-| **Interface Extensions** | Implementierung erforderlich | Strukturelle Kompatibilität |
+| Concept                  | Java                              | TypeScript               |
+| ------------------------ | --------------------------------- | ------------------------ |
+| **Type system**          | Nominal (class hierarchy)         | Structural (duck typing) |
+| **Type inference**       | Limited (`var`, diamond operator) | Extensive (automatic)    |
+| **Null safety**          | Optional\<T>, verbose             | ?., ??, more elegant     |
+| **Async programming**    | CompletableFuture, verbose        | async/await, intuitive   |
+| **Union types**          | Not available                     | Natively supported       |
+| **Interface extensions** | Implementation required           | Structural compatibility |
 
-## 🛠️ Entwicklung und Debugging
+## 🛠️ Development and Debugging
 
-### Debug-Konfiguration
-Die Extension ist für Debugging vorkonfiguriert:
-- Starten Sie mit `F5`
-- Setzen Sie Breakpoints in `src/extension.ts`
-- Debug Console zeigt Ausgaben
+### Debug Configuration
 
-### Häufige Probleme
+The extension is preconfigured for debugging:
+
+* Start with `F5`
+* Set breakpoints in `src/extension.ts`
+* Debug console shows output
+
+### Common Issues
 
 **Problem:** `command 'demo.xyz' already exists`
-**Lösung:** Command ist bereits registriert, überprüfen Sie doppelte Registrierungen
+**Solution:** Command already registered, check for duplicates
 
 **Problem:** `Cannot find module 'vscode'`
-**Lösung:** Führen Sie `yarn install` aus
+**Solution:** Run `yarn install`
 
-**Problem:** TypeScript-Compilation Fehler
-**Lösung:** Überprüfen Sie `tsconfig.json` und führen Sie `yarn compile` aus
+**Problem:** TypeScript compilation error
+**Solution:** Check `tsconfig.json` and run `yarn compile`
 
-## 📖 Weiterführende Ressourcen
+## 📖 Further Resources
 
 ### TypeScript
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [TypeScript für Java-Entwickler](https://www.typescriptlang.org/docs/handbook/typescript-from-scratch.html)
+
+* [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+* [TypeScript for Java Developers](https://www.typescriptlang.org/docs/handbook/typescript-from-scratch.html)
 
 ### VSCode Extension Development
-- [VSCode Extension API](https://code.visualstudio.com/api/references/vscode-api)
-- [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-- [Publishing Extensions](https://code.visualstudio.com/api/working-with-extensions/publishing-extension)
 
-### Verwandte Schulungsmodule
-- **Extension Lifecycle und Aktivierung**
-- **Command Registration und User Interaction**
-- **Workspace APIs und File System**
-- **Webviews und Tree Views**
+* [VSCode Extension API](https://code.visualstudio.com/api/references/vscode-api)
+* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+* [Publishing Extensions](https://code.visualstudio.com/api/working-with-extensions/publishing-extension)
 
-## 📄 Lizenz
+### Related Training Modules
 
-Dieses Projekt dient ausschließlich Bildungszwecken und ist Teil einer TypeScript-Schulung für Java-Entwickler.
+* **Extension lifecycle and activation**
+* **Command registration and user interaction**
+* **Workspace APIs and file system**
+* **Webviews and tree views**
+
+## 📄 License
+
+This project is for educational purposes only and is part of a TypeScript training course for Java developers.
 
 ---
 
-**Entwickelt für die Schulung: VSCode Extension Development mit TypeScript**  
-*Zielgruppe: Erfahrene Java-Entwickler mit Eclipse-Hintergrund*
+**Developed for the training: VSCode Extension Development with TypeScript**
+*Target audience: Experienced Java developers with Eclipse background*

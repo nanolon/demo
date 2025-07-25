@@ -3,17 +3,17 @@
 import * as vscode from 'vscode';
 
 // =============================================================================
-// ABSCHNITT 1: Strukturelle Typisierung in der Praxis
+// SECTION 1: Structural Typing in Practice
 // =============================================================================
 
-// Interface für Extension-Commands
+// Interface for Extension Commands
 interface CommandDefinition {
     id: string;
     title: string;
     category?: string;
 }
 
-// Strukturell kompatible Objekte - keine explizite Implementierung nötig
+// Structurally compatible objects - no explicit implementation needed
 const helloCommand: CommandDefinition = { 
     id: 'demo.helloWorld', 
     title: 'Hello World' 
@@ -23,22 +23,22 @@ const advancedCommand = {
     id: 'demo.analyze', 
     title: 'Analyze File', 
     category: 'Analysis',
-    description: 'Extra property allowed' // Zusätzliche Eigenschaften sind erlaubt
+    description: 'Extra property allowed' // Additional properties are allowed
 };
 
-// Hilfsfunktion nutzt strukturelle Kompatibilität
+// Helper function uses structural compatibility
 function registerCommand(cmd: CommandDefinition, handler: () => void): vscode.Disposable {
     return vscode.commands.registerCommand(cmd.id, handler);
 }
 
 // =============================================================================
-// ABSCHNITT 2: Union Types und Typinferenz
+// SECTION 2: Union Types and Type Inference
 // =============================================================================
 
-// Union Type für Message-Level
+// Union Type for Message Level
 type MessageLevel = 'info' | 'warn' | 'error';
 
-// Typinferenz mit VSCode-APIs
+// Type inference with VSCode APIs
 function showTypedMessage(message: string, level: MessageLevel = 'info'): Thenable<string | undefined> {
     switch (level) {
         case 'info': return vscode.window.showInformationMessage(message);
@@ -47,37 +47,37 @@ function showTypedMessage(message: string, level: MessageLevel = 'info'): Thenab
     }
 }
 
-// Extension State mit automatischer Typinferenz
+// Extension State with automatic type inference
 const extensionState = {
-    isActive: false,    // TypeScript inferiert: boolean
-    commandCount: 0,    // TypeScript inferiert: number
+    isActive: false,    // TypeScript infers: boolean
+    commandCount: 0,    // TypeScript infers: number
     lastCommand: 'none' // Literal Type
 };
 
 // =============================================================================
-// ABSCHNITT 3: Asynchrone Programmierung mit async/await
+// SECTION 3: Asynchronous Programming with async/await
 // =============================================================================
 
-// Asynchrone Dateioperation mit expliziter Promise-Typisierung
+// Asynchronous file operation with explicit Promise typing
 async function saveAllOpenFiles(): Promise<number> {
     let savedCount = 0;
     
     for (const document of vscode.workspace.textDocuments) {
         if (document.isDirty && !document.isUntitled) {
-            const success = await document.save(); // await ersetzt .then()
+            const success = await document.save(); // await replaces .then()
             if (success) savedCount++;
         }
     }
     return savedCount;
 }
 
-// Command-Handler mit Fehlerbehandlung
+// Command handler with error handling
 async function handleSaveAllCommand(): Promise<void> {
     try {
         const savedCount = await saveAllOpenFiles();
         await showTypedMessage(`${savedCount} files saved`, 'info');
         
-        // Extension State aktualisieren
+        // Update extension state
         extensionState.commandCount++;
         extensionState.lastCommand = 'saveAll';
     } catch (error) {
@@ -87,12 +87,12 @@ async function handleSaveAllCommand(): Promise<void> {
 }
 
 // =============================================================================
-// ABSCHNITT 4: Interface-basierte Konfiguration
+// SECTION 4: Interface-based Configuration
 // =============================================================================
 
-// Extension-Konfiguration mit optionalen Properties
+// Extension configuration with optional properties
 interface ExtensionConfig {
-    readonly name: string;        // readonly verhindert Änderungen
+    readonly name: string;        // readonly prevents changes
     version: string;
     isEnabled: boolean;
     userSettings: {
@@ -100,13 +100,13 @@ interface ExtensionConfig {
         logLevel: MessageLevel;
         maxFileSize: number;
     };
-    features?: {                  // Optionale Sektion
+    features?: {                  // Optional section
         experimentalMode: boolean;
         debugOutput: boolean;
     };
 }
 
-// Workspace-Integration mit Defaults
+// Workspace integration with defaults
 function loadExtensionConfig(): ExtensionConfig {
     const config = vscode.workspace.getConfiguration('demo');
     
@@ -115,54 +115,54 @@ function loadExtensionConfig(): ExtensionConfig {
         version: '1.0.0',
         isEnabled: true,
         userSettings: {
-            autoSave: config.get('autoSave', true),                           // Default-Werte
+            autoSave: config.get('autoSave', true),                           // Default values
             logLevel: config.get('logLevel', 'info' as MessageLevel),
             maxFileSize: config.get('maxFileSize', 1024)
         },
-        features: config.get('experimental') ? {                             // Bedingte Struktur
+        features: config.get('experimental') ? {                             // Conditional structure
             experimentalMode: config.get('experimental.mode', false),
             debugOutput: config.get('experimental.debug', false)
         } : undefined
     };
 }
 
-// Objektdestruktion für cleanen Code
+// Object destructuring for clean code
 function handleConfigurationChange(): void {
     const { userSettings, features } = loadExtensionConfig();
     console.log(`AutoSave: ${userSettings.autoSave}, Debug: ${features?.debugOutput ?? 'off'}`);
     
-    // Konfigurationsänderung als Message anzeigen
+    // Show configuration change as message
     showTypedMessage('Configuration updated', 'info');
 }
 
 // =============================================================================
-// ABSCHNITT 5: Generische Hilfsfunktionen
+// SECTION 5: Generic Helper Functions
 // =============================================================================
 
-// Generische Workspace-Konfigurationsfunktion
+// Generic workspace configuration function
 function getWorkspaceConfig<T>(section: string, key: string, defaultValue: T): T {
     const config = vscode.workspace.getConfiguration(section);
     return config.get<T>(key, defaultValue);
 }
 
-// Type Guards für sichere VSCode-API-Verwendung
+// Type Guards for safe VSCode API usage
 function isTextEditor(obj: any): obj is vscode.TextEditor {
     return obj && typeof obj.document === 'object' && typeof obj.selection === 'object';
 }
 
-// Sichere Editor-Verarbeitung
+// Safe editor processing
 function analyzeCurrentFile(): void {
     const editor = vscode.window.activeTextEditor;
     
     if (isTextEditor(editor)) {
-        const { document, selection } = editor;  // Destructuring nach Type Guard
+        const { document, selection } = editor;  // Destructuring after Type Guard
         const fileName = document.fileName.split('/').pop() || document.fileName;
         const selectedText = selection.isEmpty ? 'no selection' : `${selection.end.line - selection.start.line + 1} lines selected`;
         const info = `${fileName}: ${document.lineCount} lines, ${selectedText}`;
         
         showTypedMessage(info, 'info');
         
-        // Extension State aktualisieren
+        // Update extension state
         extensionState.commandCount++;
         extensionState.lastCommand = 'analyze';
     } else {
@@ -170,29 +170,29 @@ function analyzeCurrentFile(): void {
     }
 }
 
-// Demonstration der generischen Konfigurationsfunktion
+// Demonstration of generic configuration function
 function demonstrateGenericConfig(): void {
-    // Typsichere Verwendung ohne explizite Typangaben
-    const maxFiles = getWorkspaceConfig('demo', 'maxFiles', 100);        // number (inferiert)
-    const enableLogging = getWorkspaceConfig('demo', 'logging', false);   // boolean (inferiert)
-    const extensions = getWorkspaceConfig('demo', 'extensions', ['ts']);  // string[] (inferiert)
+    // Type-safe usage without explicit type annotations
+    const maxFiles = getWorkspaceConfig('demo', 'maxFiles', 100);        // number (inferred)
+    const enableLogging = getWorkspaceConfig('demo', 'logging', false);   // boolean (inferred)
+    const extensions = getWorkspaceConfig('demo', 'extensions', ['ts']);  // string[] (inferred)
     
     const configInfo = `Config: maxFiles=${maxFiles}, logging=${enableLogging}, extensions=[${extensions.join(', ')}]`;
     showTypedMessage(configInfo, 'info');
 }
 
 // =============================================================================
-// ABSCHNITT 6: Vollständige Extension-Integration
+// SECTION 6: Complete Extension Integration
 // =============================================================================
 
-// Erweiterte Command-Definition mit Handler
+// Extended command definition with handler
 interface ExtendedCommandDefinition {
     id: string;
     title: string;
     handler: () => void | Promise<void>;
 }
 
-// Command Registry mit allen implementierten Commands
+// Command registry with all implemented commands
 const commands: ExtendedCommandDefinition[] = [
     {
         id: 'demo.helloWorld',
@@ -237,14 +237,14 @@ const commands: ExtendedCommandDefinition[] = [
 export function activate(context: vscode.ExtensionContext) {
     console.log('Extension "demo" is now active!');
     
-    // Extension State initialisieren
+    // Initialize extension state
     extensionState.isActive = true;
     
-    // Konfiguration beim Start laden und anzeigen
+    // Load and display configuration on startup
     const config = loadExtensionConfig();
     console.log(`Loaded config for ${config.name} v${config.version}`);
     
-    // Register commands with error handling (aus Abschnitt 6)
+    // Register commands with error handling (from Section 6)
     const disposables = commands.map(cmd => 
         vscode.commands.registerCommand(cmd.id, async () => {
             try {
@@ -256,25 +256,25 @@ export function activate(context: vscode.ExtensionContext) {
         })
     );
     
-    // Configuration change listener (aus Abschnitt 4)
+    // Configuration change listener (from Section 4)
     const configListener = vscode.workspace.onDidChangeConfiguration(event => {
         if (event.affectsConfiguration('demo')) {
             handleConfigurationChange();
         }
     });
     
-    // Beispiel für strukturelle Typisierung - separater Command (aus Abschnitt 1)
-    // Hinweis: helloCommand wird bereits über das commands Array registriert
+    // Example for structural typing - separate command (from Section 1)
+    // Note: helloCommand is already registered via the commands array
     const structuralExample = registerCommand(advancedCommand, () => {
         showTypedMessage('Structural typing example with advanced command!', 'info');
         extensionState.commandCount++;
         extensionState.lastCommand = 'structural';
     });
     
-    // Alle Event-Listener zu subscriptions hinzufügen
+    // Add all event listeners to subscriptions
     context.subscriptions.push(...disposables, configListener, structuralExample);
     
-    // Willkommensnachricht mit TypeScript-Features
+    // Welcome message with TypeScript features
     showTypedMessage(`Extension activated! Configuration loaded: ${config.userSettings.logLevel} level`, 'info');
 }
 
@@ -282,9 +282,9 @@ export function activate(context: vscode.ExtensionContext) {
 export function deactivate(): void {
     console.log('Extension "demo" deactivated');
     
-    // Extension State cleanup
+    // Extension state cleanup
     extensionState.isActive = false;
     
-    // Abschiedsnachricht
+    // Farewell message
     showTypedMessage(`Extension deactivated after ${extensionState.commandCount} commands`, 'info');
 }
