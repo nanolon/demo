@@ -2,67 +2,67 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 
 /**
- * Interface für QuickPick-Items mit Dateipfad-Informationen
+ * Interface for QuickPick items with file path information
  */
 interface FileQuickPickItem extends vscode.QuickPickItem {
-    /** Vollständiger URI der Datei */
+    /** Full URI of the file */
     uri: vscode.Uri;
-    /** Relativer Pfad vom Workspace-Root */
+    /** Relative path from workspace root */
     relativePath: string;
 }
 
 /**
- * Aktivierungsfunktion der Extension
- * Wird beim ersten Aufruf eines Commands automatisch aufgerufen
+ * Extension activation function
+ * Called automatically on first command invocation
  */
 export function activate(context: vscode.ExtensionContext) {
-    console.log('Workspace File Picker Extension aktiviert');
+    console.log('Workspace File Picker Extension activated');
 
-    // Command registrieren: workspaceFilePicker.pick
+    // Register command: workspaceFilePicker.pick
     const disposable = vscode.commands.registerCommand('workspaceFilePicker.pick', async () => {
         try {
             await pickAndOpenWorkspaceFile();
         } catch (error) {
-            vscode.window.showErrorMessage(`Fehler beim Öffnen der Datei: ${error}`);
+            vscode.window.showErrorMessage(`Error opening file: ${error}`);
         }
     });
 
-    // Command zur automatischen Deaktivierung registrieren
+    // Register command for automatic deactivation
     context.subscriptions.push(disposable);
 }
 
 /**
- * Hauptfunktion: Dateien im Workspace finden, auflisten und zur Auswahl anbieten
+ * Main function: Find files in workspace, list them, and offer for selection
  */
 async function pickAndOpenWorkspaceFile(): Promise<void> {
-    // 1. Workspace-Verfügbarkeit prüfen
+    // 1. Check workspace availability
     if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
-        vscode.window.showWarningMessage('Kein Workspace geöffnet. Bitte öffnen Sie einen Ordner oder Workspace.');
+        vscode.window.showWarningMessage('No workspace opened. Please open a folder or workspace.');
         return;
     }
 
-    // 2. Ladeindikator anzeigen während Dateien gesucht werden
+    // 2. Show loading indicator while searching for files
     await vscode.window.withProgress({
         location: vscode.ProgressLocation.Window,
-        title: "Dateien werden gesucht...",
+        title: "Searching for files...",
         cancellable: true
     }, async (progress, token) => {
         
-        // 3. Alle Dateien im Workspace finden
+        // 3. Find all files in workspace
         const files = await findAllWorkspaceFiles(token);
         
         if (files.length === 0) {
-            vscode.window.showInformationMessage('Keine Dateien im Workspace gefunden.');
+            vscode.window.showInformationMessage('No files found in workspace.');
             return;
         }
 
-        // 4. Dateien für QuickPick aufbereiten
+        // 4. Prepare files for QuickPick
         const quickPickItems = await createQuickPickItems(files);
         
-        // 5. QuickPick-Dialog anzeigen
+        // 5. Show QuickPick dialog
         const selectedItem = await showFileQuickPick(quickPickItems);
         
-        // 6. Ausgewählte Datei öffnen
+        // 6. Open selected file
         if (selectedItem) {
             await openFileInEditor(selectedItem.uri);
         }
@@ -70,18 +70,18 @@ async function pickAndOpenWorkspaceFile(): Promise<void> {
 }
 
 /**
- * Sucht alle Dateien in allen Workspace-Ordnern
- * Schließt häufige Build- und Cache-Verzeichnisse aus
+ * Searches for all files in all workspace folders
+ * Excludes common build and cache directories
  */
 async function findAllWorkspaceFiles(cancellationToken: vscode.CancellationToken): Promise<vscode.Uri[]> {
     const excludePattern = '{**/node_modules/**,**/out/**,**/dist/**,**/.git/**,**/.vscode-test/**}';
     
-    // findFiles() durchsucht alle Workspace-Ordner
-    // '**/*' = alle Dateien rekursiv
+    // findFiles() searches all workspace folders
+    // '**/*' = all files recursively
     const files = await vscode.workspace.findFiles(
-        '**/*',           // Include-Pattern: alle Dateien
-        excludePattern,   // Exclude-Pattern: Build-Ordner etc.
-        undefined,        // Limit: unbegrenzt
+        '**/*',           // Include pattern: all files
+        excludePattern,   // Exclude pattern: build folders etc.
+        undefined,        // Limit: unlimited
         cancellationToken
     );
     
@@ -89,56 +89,56 @@ async function findAllWorkspaceFiles(cancellationToken: vscode.CancellationToken
 }
 
 /**
- * Konvertiert URI-Liste zu QuickPick-Items mit benutzerfreundlicher Darstellung
+ * Converts URI list to QuickPick items with user-friendly display
  */
 async function createQuickPickItems(files: vscode.Uri[]): Promise<FileQuickPickItem[]> {
     const workspaceRoot = vscode.workspace.workspaceFolders![0].uri;
     
     const items: FileQuickPickItem[] = files.map(fileUri => {
-        // Relativen Pfad berechnen für bessere Lesbarkeit
+        // Calculate relative path for better readability
         const relativePath = path.relative(workspaceRoot.fsPath, fileUri.fsPath);
         const fileName = path.basename(fileUri.fsPath);
         const directory = path.dirname(relativePath);
         
         return {
-            label: fileName,                                    // Hauptanzeige: Dateiname
-            description: directory === '.' ? '' : directory,   // Unterzeile: Verzeichnis
-            detail: relativePath,                              // Zusatzinfo: vollständiger Pfad
+            label: fileName,                                    // Main display: filename
+            description: directory === '.' ? '' : directory,   // Subtitle: directory
+            detail: relativePath,                              // Additional info: full path
             uri: fileUri,
             relativePath: relativePath
         };
     });
     
-    // Alphabetisch nach Dateiname sortieren
+    // Sort alphabetically by filename
     items.sort((a, b) => a.label.localeCompare(b.label));
     
     return items;
 }
 
 /**
- * Zeigt QuickPick-Dialog mit Suchfunktion an
+ * Shows QuickPick dialog with search functionality
  */
 async function showFileQuickPick(items: FileQuickPickItem[]): Promise<FileQuickPickItem | undefined> {
     const quickPick = vscode.window.createQuickPick<FileQuickPickItem>();
     
-    // QuickPick konfigurieren
-    quickPick.placeholder = 'Dateiname eingeben zum Filtern...';
+    // Configure QuickPick
+    quickPick.placeholder = 'Type filename to filter...';
     quickPick.items = items;
     quickPick.canSelectMany = false;
-    quickPick.matchOnDescription = true;  // Suche auch in Verzeichnispfad
-    quickPick.matchOnDetail = true;       // Suche auch in vollständigem Pfad
+    quickPick.matchOnDescription = true;  // Search also in directory path
+    quickPick.matchOnDetail = true;       // Search also in full path
     
-    // Promise für Benutzerinteraktion
+    // Promise for user interaction
     return new Promise<FileQuickPickItem | undefined>((resolve) => {
         quickPick.onDidAccept(() => {
             const selectedItem = quickPick.activeItems[0];
-            quickPick.dispose();
             resolve(selectedItem);
+            quickPick.dispose();
         });
         
         quickPick.onDidHide(() => {
-            quickPick.dispose();
             resolve(undefined);
+            quickPick.dispose();
         });
         
         quickPick.show();
@@ -146,27 +146,27 @@ async function showFileQuickPick(items: FileQuickPickItem[]): Promise<FileQuickP
 }
 
 /**
- * Öffnet die ausgewählte Datei im Editor
- * Fokussiert automatisch den neuen Tab
+ * Opens the selected file in the editor
+ * Automatically focuses the new tab
  */
 async function openFileInEditor(fileUri: vscode.Uri): Promise<void> {
     try {
         const document = await vscode.workspace.openTextDocument(fileUri);
         await vscode.window.showTextDocument(document, {
-            preview: false,  // Neuen Tab öffnen (nicht nur Preview)
-            preserveFocus: false  // Editor fokussieren
+            preview: false,  // Open new tab (not just preview)
+            preserveFocus: false  // Focus editor
         });
         
-        console.log(`Datei geöffnet: ${fileUri.fsPath}`);
+        console.log(`File opened: ${fileUri.fsPath}`);
     } catch (error) {
-        throw new Error(`Datei konnte nicht geöffnet werden: ${error}`);
+        throw new Error(`File could not be opened: ${error}`);
     }
 }
 
 /**
- * Deaktivierungsfunktion der Extension
- * Wird beim Herunterfahren von VSCode oder Deaktivierung der Extension aufgerufen
+ * Extension deactivation function
+ * Called on VSCode shutdown or extension deactivation
  */
 export function deactivate() {
-    console.log('Workspace File Picker Extension deaktiviert');
+    console.log('Workspace File Picker Extension deactivated');
 }
