@@ -1,7 +1,7 @@
 {
   "name": "hello-world-highlighter",
   "displayName": "Hello World Highlighter",
-  "description": "Syntax-Highlighting für Hello World und Hallo Welt in Text-Dateien",
+  "description": "Syntax-Highlighting for Hello World and Hallo Welt in Text files",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.102.0"
@@ -17,6 +17,10 @@
       {
         "command": "demo.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "helloWorldHighlighter.showInfo",
+        "title": "Hello World Info"
       }
     ],
     "languages": [

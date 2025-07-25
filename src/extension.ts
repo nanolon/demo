@@ -16,7 +16,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const disposable = vscode.commands.registerCommand('demo.helloWorld', () => {
 		// The code you place here will be executed every time your command is executed
 		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Hello World Highlighter! 🎉\n\nÖffnen Sie eine .txt-Datei und schreiben Sie "Hello World" oder "Hallo Welt" - die Begriffe werden automatisch hervorgehoben!');
+		vscode.window.showInformationMessage('Hello World from Hello World Highlighter! 🎉\n\nOpen a .txt file and write "Hello World" or "Hallo Welt" - these terms will be automatically highlighted!');
 	});
 
 	context.subscriptions.push(disposable);
@@ -45,19 +45,19 @@ export function activate(context: vscode.ExtensionContext) {
 			</head>
 			<body>
 				<h1>Hello World Highlighter</h1>
-				<p>Diese Extension hebt folgende Begriffe in .txt-Dateien hervor:</p>
+				<p>This extension highlights the following terms in .txt files:</p>
 				<ul>
-					<li><span class="highlight">Hello World</span> (englisch)</li>
-					<li><span class="highlight">Hallo Welt</span> (deutsch)</li>
+					<li><span class="highlight">Hello World</span> (English)</li>
+					<li><span class="highlight">Hallo Welt</span> (German)</li>
 				</ul>
-				<h2>Funktionen:</h2>
+				<h2>Features:</h2>
 				<ul>
-					<li>✅ Groß-/Kleinschreibung wird ignoriert</li>
-					<li>✅ Funktioniert in allen .txt-Dateien</li>
-					<li>✅ Automatische Aktivierung</li>
+					<li>✅ Case insensitive matching</li>
+					<li>✅ Works in all .txt files</li>
+					<li>✅ Automatic activation</li>
 				</ul>
-				<h2>Testen:</h2>
-				<p>Erstellen Sie eine neue .txt-Datei und schreiben Sie:</p>
+				<h2>Testing:</h2>
+				<p>Create a new .txt file and write:</p>
 				<pre><code>Hello World
 HELLO WORLD
 hello world

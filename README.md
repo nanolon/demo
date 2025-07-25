@@ -1,115 +1,115 @@
 # Hello World Highlighter - VSCode Extension
 
-## Überblick
+## Overview
 
-Diese VSCode Extension erkennt die Phrasen "Hello World" und "Hallo Welt" in Text-Dateien (`.txt`) und hebt sie mit Syntax-Highlighting hervor. Die Extension demonstriert die Grundlagen der Sprach-Extension-Entwicklung in VSCode.
+This VSCode extension recognizes the phrases "Hello World" and "Hallo Welt" in text files (`.txt`) and highlights them with syntax highlighting. The extension demonstrates the fundamentals of language extension development in VSCode.
 
-## Was macht diese Extension?
+## What does this extension do?
 
-Die Extension erweitert VSCode um folgende Funktionen:
+The extension extends VSCode with the following features:
 
-1. **Spracherkennung**: Alle `.txt`-Dateien werden als "Hello Text"-Dateien erkannt
-2. **Syntax-Highlighting**: Die Begriffe "Hello World" und "Hallo Welt" werden farblich hervorgehoben
-3. **Groß-/Kleinschreibung**: Die Erkennung funktioniert unabhängig von der Schreibweise (z.B. "HELLO WORLD", "hello world", "Hallo Welt")
+1. **Language Recognition**: All `.txt` files are recognized as "Hello Text" files
+2. **Syntax Highlighting**: The terms "Hello World" and "Hallo Welt" are highlighted in color
+3. **Case Sensitivity**: Recognition works regardless of case (e.g., "HELLO WORLD", "hello world", "Hallo Welt")
 
-## Erkannte Muster
+## Recognized Patterns
 
-Die Extension erkennt folgende Varianten:
-- `Hello World` (englisch)
-- `Hallo Welt` (deutsch)
-- Alle Kombinationen aus Groß- und Kleinbuchstaben
-- Mit beliebigen Leerzeichen zwischen den Wörtern
+The extension recognizes the following variants:
+- `Hello World` (English)
+- `Hallo Welt` (German)
+- All combinations of uppercase and lowercase letters
+- With any whitespace between words
 
-### Beispiele:
+### Examples:
 ```
-Hello World          ← wird hervorgehoben
-HELLO WORLD          ← wird hervorgehoben  
-hello world          ← wird hervorgehoben
-Hello    World       ← wird hervorgehoben
-Hallo Welt           ← wird hervorgehoben
-HALLO WELT           ← wird hervorgehoben
-hallo welt           ← wird hervorgehoben
+Hello World          ← will be highlighted
+HELLO WORLD          ← will be highlighted  
+hello world          ← will be highlighted
+Hello    World       ← will be highlighted
+Hallo Welt           ← will be highlighted
+HALLO WELT           ← will be highlighted
+hallo welt           ← will be highlighted
 ```
 
-## Technische Grundlagen
+## Technical Fundamentals
 
-### Was ist Syntax-Highlighting?
+### What is Syntax Highlighting?
 
-Syntax-Highlighting ist die farbliche Hervorhebung von Textelementen in einem Editor. Es hilft dabei:
-- Code oder Text besser zu verstehen
-- Wichtige Begriffe schnell zu erkennen
-- Strukturen visuell zu erfassen
+Syntax highlighting is the color-coded display of text elements in an editor. It helps to:
+- Better understand code or text
+- Quickly recognize important terms
+- Visually grasp structures
 
-VSCode verwendet dafür **TextMate Grammars** - ein System zur Definition von Sprachregeln.
+VSCode uses **TextMate Grammars** for this - a system for defining language rules.
 
 ### TextMate Grammar
 
-Eine TextMate Grammar definiert:
-- **Patterns**: Welche Textmuster erkannt werden sollen
-- **Scopes**: Wie die erkannten Muster kategorisiert werden
-- **Highlighting**: Welche Farben für welche Kategorien verwendet werden
+A TextMate Grammar defines:
+- **Patterns**: Which text patterns should be recognized
+- **Scopes**: How the recognized patterns are categorized
+- **Highlighting**: Which colors are used for which categories
 
-### Scope-System
+### Scope System
 
-Jedes erkannte Muster bekommt einen **Scope** zugewiesen. In unserer Extension:
-- `keyword.control.hello`: Hauptscope für Hello World/Hallo Welt
-- `keyword.control.hello.greeting`: Für "Hello"/"Hallo"  
-- `keyword.control.hello.target`: Für "World"/"Welt"
+Each recognized pattern is assigned a **scope**. In our extension:
+- `keyword.control.hello`: Main scope for Hello World/Hallo Welt
+- `keyword.control.hello.greeting`: For "Hello"/"Hallo"  
+- `keyword.control.hello.target`: For "World"/"Welt"
 
-## Projektstruktur
+## Project Structure
 
 ```
 hello-world-highlighter/
-├── package.json                          # Extension-Manifest
-├── language-configuration.json           # Sprachkonfiguration
+├── package.json                          # Extension manifest
+├── language-configuration.json           # Language configuration
 ├── syntaxes/
 │   └── hello-text.tmGrammar.json         # TextMate Grammar
 ├── src/
-│   └── extension.ts                      # Extension-Code
-└── README.md                             # Diese Dokumentation
+│   └── extension.ts                      # Extension code
+└── README.md                             # This documentation
 ```
 
-### Wichtige Dateien erklärt
+### Important Files Explained
 
 #### package.json
-Das **Manifest** der Extension. Definiert:
-- Metadaten (Name, Version, Beschreibung)
-- **Contributions**: Was die Extension zu VSCode beiträgt
-- **Languages**: Neue Sprach-Unterstützung
-- **Grammars**: Verknüpfung zu Grammar-Dateien
+The extension **manifest**. Defines:
+- Metadata (name, version, description)
+- **Contributions**: What the extension contributes to VSCode
+- **Languages**: New language support
+- **Grammars**: Links to grammar files
 
 #### syntaxes/hello-text.tmGrammar.json
-Die **TextMate Grammar** mit:
-- **Patterns**: Regex-Muster für "Hello World" und "Hallo Welt"
-- **Scopes**: Zuordnung der Muster zu Kategorien
-- **Repository**: Strukturierte Sammlung der Erkennungsregeln
+The **TextMate Grammar** with:
+- **Patterns**: Regex patterns for "Hello World" and "Hallo Welt"
+- **Scopes**: Assignment of patterns to categories
+- **Repository**: Structured collection of recognition rules
 
 #### language-configuration.json
-**Sprachkonfiguration** für grundlegende Editor-Features:
-- Kommentar-Syntax
-- Klammer-Paare
-- Auto-Vervollständigung
+**Language configuration** for basic editor features:
+- Comment syntax
+- Bracket pairs
+- Auto-completion
 
-## Installation und Test
+## Installation and Testing
 
-### 1. Projekt kompilieren
+### 1. Compile Project
 ```bash
-# Dependencies installieren
+# Install dependencies
 yarn install
 
-# TypeScript kompilieren
+# Compile TypeScript
 yarn run compile
 ```
 
-### 2. Extension testen
-1. Drücken Sie `F5` in VSCode
-2. Ein neues VSCode-Fenster öffnet sich
-3. Erstellen Sie eine neue `.txt`-Datei
-4. Geben Sie "Hello World" oder "Hallo Welt" ein
-5. Die Begriffe sollten farblich hervorgehoben werden
+### 2. Test Extension
+1. Press `F5` in VSCode
+2. A new VSCode window opens
+3. Create a new `.txt` file
+4. Type "Hello World" or "Hallo Welt"
+5. The terms should be highlighted in color
 
-### 3. Test-Datei erstellen
-Erstellen Sie eine Datei `test.txt` mit folgendem Inhalt:
+### 3. Create Test File
+Create a file `test.txt` with the following content:
 ```
 Hello World
 HELLO WORLD
@@ -121,22 +121,22 @@ Hello    World
 Normal text without highlighting
 ```
 
-## Wie funktioniert die Grammar?
+## How does the Grammar work?
 
-### Regex-Pattern Erklärung
+### Regex Pattern Explanation
 
 ```json
 "match": "(?i)\\b(hello)\\s+(world)\\b"
 ```
 
-- `(?i)`: Case-insensitive Matching (Groß-/Kleinschreibung ignorieren)
-- `\\b`: Wortgrenze (stellt sicher, dass "hello" ein ganzes Wort ist)
-- `(hello)`: Capturing Group für "hello"
-- `\\s+`: Ein oder mehrere Leerzeichen
-- `(world)`: Capturing Group für "world"
-- `\\b`: Wortgrenze am Ende
+- `(?i)`: Case-insensitive matching (ignore case)
+- `\\b`: Word boundary (ensures "hello" is a complete word)
+- `(hello)`: Capturing group for "hello"
+- `\\s+`: One or more whitespace characters
+- `(world)`: Capturing group for "world"
+- `\\b`: Word boundary at the end
 
-### Scope-Zuordnung
+### Scope Assignment
 
 ```json
 "captures": {
@@ -145,16 +145,16 @@ Normal text without highlighting
 }
 ```
 
-- Group 1 ("hello"): Bekommt Scope `keyword.control.hello.greeting`
-- Group 2 ("world"): Bekommt Scope `keyword.control.hello.target`
+- Group 1 ("hello"): Gets scope `keyword.control.hello.greeting`
+- Group 2 ("world"): Gets scope `keyword.control.hello.target`
 
-## Extension-Aktivierung
+## Extension Activation
 
-### Wann wird die Extension aktiviert?
+### When is the extension activated?
 
-Die Extension wird automatisch aktiviert, wenn:
-1. VSCode startet (da `activationEvents` leer ist)
-2. Eine `.txt`-Datei geöffnet wird
+The extension is automatically activated when:
+1. VSCode starts (since `activationEvents` is empty)
+2. A `.txt` file is opened
 
 ### Language Association
 
@@ -165,15 +165,15 @@ Die Extension wird automatisch aktiviert, wenn:
 }]
 ```
 
-Dies teilt VSCode mit:
-- Alle `.txt`-Dateien gehören zur Sprache "hello-text"
-- Für diese Sprache soll die Grammar angewendet werden
+This tells VSCode:
+- All `.txt` files belong to the "hello-text" language
+- The grammar should be applied to this language
 
-## Anpassung und Erweiterung
+## Customization and Extension
 
-### Neue Sprachen hinzufügen
+### Adding New Languages
 
-Um weitere Varianten zu unterstützen (z.B. "Bonjour Monde"), erweitern Sie die Grammar:
+To support additional variants (e.g., "Bonjour Monde"), extend the grammar:
 
 ```json
 "hello-world-fr": {
@@ -184,35 +184,35 @@ Um weitere Varianten zu unterstützen (z.B. "Bonjour Monde"), erweitern Sie die 
 }
 ```
 
-### Andere Dateitypen unterstützen
+### Supporting Other File Types
 
-Ändern Sie in `package.json`:
+Change in `package.json`:
 ```json
 "extensions": [".txt", ".md", ".log"]
 ```
 
-### Farben anpassen
+### Customizing Colors
 
-Die tatsächlichen Farben werden vom VSCode-Theme bestimmt. Der Scope `keyword.control.hello` wird standardmäßig als Keyword formatiert.
+The actual colors are determined by the VSCode theme. The scope `keyword.control.hello` is formatted as a keyword by default.
 
-## Häufige Probleme
+## Common Issues
 
-### Extension wird nicht aktiviert
-- Prüfen Sie die VSCode Developer Console (`Help > Toggle Developer Tools`)
-- Stellen Sie sicher, dass `yarn run compile` erfolgreich war
+### Extension not activating
+- Check the VSCode Developer Console (`Help > Toggle Developer Tools`)
+- Ensure that `yarn run compile` was successful
 
-### Highlighting funktioniert nicht
-- Überprüfen Sie, ob die Datei als "hello-text" erkannt wird (rechts unten in der Statusleiste)
-- Testen Sie mit exakten Begriffen "Hello World" oder "Hallo Welt"
+### Highlighting not working
+- Check if the file is recognized as "hello-text" (bottom right in status bar)
+- Test with exact terms "Hello World" or "Hallo Welt"
 
-### Grammar-Änderungen werden nicht übernommen
-- Laden Sie das Extension Development Host Fenster neu (`Ctrl+R` / `Cmd+R`)
-- Oder starten Sie den Debug-Prozess neu (`F5`)
+### Grammar changes not applied
+- Reload the Extension Development Host window (`Ctrl+R` / `Cmd+R`)
+- Or restart the debug process (`F5`)
 
-## Weiterführende Konzepte
+## Advanced Concepts
 
 ### Theme Integration
-VSCode-Themes können spezifische Farben für Custom Scopes definieren:
+VSCode themes can define specific colors for custom scopes:
 ```json
 "textMateRules": [{
   "scope": "keyword.control.hello",
@@ -224,17 +224,17 @@ VSCode-Themes können spezifische Farben für Custom Scopes definieren:
 ```
 
 ### Semantic Highlighting
-Für komplexere Sprachen können Sie anstatt TextMate auch Semantic Highlighting verwenden, das kontextabhängige Hervorhebung ermöglicht.
+For more complex languages, you can use Semantic Highlighting instead of TextMate, which enables context-dependent highlighting.
 
 ### Language Server Protocol (LSP)
-Für vollständige Sprachunterstützung (IntelliSense, Fehlerprüfung, etc.) ist ein Language Server die richtige Lösung.
+For complete language support (IntelliSense, error checking, etc.), a Language Server is the right solution.
 
-## Zusammenfassung
+## Summary
 
-Diese Extension demonstriert die Grundlagen des Syntax-Highlightings in VSCode:
-- **TextMate Grammars** für Pattern-basierte Hervorhebung
-- **Scope-System** für die Kategorisierung von Text
-- **Language Contributions** in VSCode Extensions
-- **Regex-Pattern** für flexible Texterkennung
+This extension demonstrates the fundamentals of syntax highlighting in VSCode:
+- **TextMate Grammars** for pattern-based highlighting
+- **Scope System** for text categorization
+- **Language Contributions** in VSCode extensions
+- **Regex Patterns** for flexible text recognition
 
-Das Beispiel ist bewusst einfach gehalten, zeigt aber alle wichtigen Konzepte für die Entwicklung von Sprach-Extensions in VSCode.
+The example is intentionally kept simple but shows all important concepts for developing language extensions in VSCode.
