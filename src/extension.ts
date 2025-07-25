@@ -3,28 +3,28 @@ import * as vscode from 'vscode';
 export function activate(context: vscode.ExtensionContext) {
     console.log('Extension "demo" is now active!');
 
-    // Statusbar-Item erstellen und konfigurieren
+    // Create and configure statusbar item
     const statusBarItem = vscode.window.createStatusBarItem(
         vscode.StatusBarAlignment.Left, 
-        100 // Priorität für Positionierung
+        100 // Priority for positioning
     );
     
     statusBarItem.text = "Show Panel";
     statusBarItem.command = 'demo.showWebview';
-    statusBarItem.tooltip = 'Öffnet das Webview-Panel';
+    statusBarItem.tooltip = 'Opens the webview panel';
     statusBarItem.show();
 
-    // Command für das Öffnen des Webview-Panels registrieren
+    // Register command for opening the webview panel
     const disposableWebview = vscode.commands.registerCommand('demo.showWebview', () => {
         createWebviewPanel(context);
     });
 
-    // Ursprünglicher Hello World Command (optional beibehalten)
+    // Original Hello World command (optionally kept)
     const disposableHello = vscode.commands.registerCommand('demo.helloWorld', () => {
         vscode.window.showInformationMessage('Hello World from demo!');
     });
 
-    // Ressourcen für automatische Bereinigung registrieren
+    // Register resources for automatic cleanup
     context.subscriptions.push(
         statusBarItem,
         disposableWebview,
@@ -33,24 +33,24 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 function createWebviewPanel(context: vscode.ExtensionContext): void {
-    // Webview-Panel erstellen
+    // Create webview panel
     const panel = vscode.window.createWebviewPanel(
-        'demoWebview',           // Eindeutige ID
-        'Mein Webview',          // Titel des Panels
-        vscode.ViewColumn.One,   // Spalte für die Anzeige
+        'demoWebview',           // Unique ID
+        'My Webview',            // Panel title
+        vscode.ViewColumn.One,   // Column for display
         {
-            enableScripts: true,  // JavaScript in Webview erlauben
-            retainContextWhenHidden: true // Panel-Zustand bei Ausblendung behalten
+            enableScripts: true,  // Allow JavaScript in webview
+            retainContextWhenHidden: true // Retain panel state when hidden
         }
     );
 
-    // HTML-Inhalt des Webviews setzen
+    // Set HTML content of the webview
     panel.webview.html = getWebviewContent();
 
-    // Optional: Event-Handler für Panel-Schließung
+    // Optional: Event handler for panel closure
     panel.onDidDispose(
         () => {
-            console.log('Webview-Panel wurde geschlossen');
+            console.log('Webview panel was closed');
         },
         null,
         context.subscriptions
@@ -60,11 +60,11 @@ function createWebviewPanel(context: vscode.ExtensionContext): void {
 function getWebviewContent(): string {
     return `
     <!DOCTYPE html>
-    <html lang="de">
+    <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Mein Webview</title>
+        <title>My Webview</title>
         <style>
             body {
                 font-family: var(--vscode-font-family);
@@ -81,12 +81,12 @@ function getWebviewContent(): string {
         </style>
     </head>
     <body>
-        <h1>Hallo aus der Webview!</h1>
-        <p>Dieses Panel wurde über das Statusbar-Item geöffnet.</p>
+        <h1>Hello from the Webview!</h1>
+        <p>This panel was opened via the statusbar item.</p>
     </body>
     </html>`;
 }
 
 export function deactivate() {
-    // Automatische Bereinigung durch context.subscriptions
+    // Automatic cleanup through context.subscriptions
 }

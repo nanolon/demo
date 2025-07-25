@@ -1,41 +1,41 @@
-# VSCode Extension Demo: Statusbar und Webview
+# VSCode Extension Demo: Statusbar and Webview
 
-Diese VSCode-Extension demonstriert die Integration von Statusbar-Items und Webview-Panels. Sie zeigt, wie erfahrene Entwickler schnell funktionale Extensions mit persistenter UI-Präsenz und flexiblen Anzeigemöglichkeiten erstellen können.
+This VSCode extension demonstrates the integration of statusbar items and webview panels. It shows how experienced developers can quickly create functional extensions with persistent UI presence and flexible display options.
 
-## Funktionalität
+## Functionality
 
-- **Statusbar-Item**: Links positionierter Button "Show Panel" mit Click-Handler
-- **Webview-Panel**: HTML-basiertes Panel mit VSCode-Theme-Integration
-- **Command-System**: Verknüpfung von UI-Elementen mit Extension-Funktionen
+- **Statusbar Item**: Left-positioned "Show Panel" button with click handler
+- **Webview Panel**: HTML-based panel with VSCode theme integration
+- **Command System**: Connection of UI elements with extension functions
 
-## Implementierung
+## Implementation
 
-### Statusbar-Integration
+### Statusbar Integration
 
-Die Extension erstellt ein Statusbar-Item links in der VSCode-Statusleiste:
+The extension creates a statusbar item on the left side of the VSCode status bar:
 
 ```typescript
 const statusBarItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Left, 
-    100 // Priorität für Positionierung
+    100 // Priority for positioning
 );
 statusBarItem.text = "Show Panel";
 statusBarItem.command = 'demo.showWebview';
 statusBarItem.show();
 ```
 
-Das Item wird über die `command`-Eigenschaft mit einem registrierten Command verknüpft. VSCode führt diesen Command bei Klick automatisch aus.
+The item is linked to a registered command via the `command` property. VSCode automatically executes this command when clicked.
 
-### Webview-Panel Implementierung
+### Webview Panel Implementation
 
-Webview-Panels sind eigenständige Browser-Instanzen innerhalb von VSCode, die HTML/CSS/JavaScript rendern können:
+Webview panels are standalone browser instances within VSCode that can render HTML/CSS/JavaScript:
 
 ```typescript
 function createWebviewPanel(context: vscode.ExtensionContext): void {
     const panel = vscode.window.createWebviewPanel(
-        'demoWebview',           // Eindeutige Typ-ID
-        'Mein Webview',          // Angezeigter Titel
-        vscode.ViewColumn.One,   // Editor-Spalte
+        'demoWebview',           // Unique type ID
+        'My Webview',            // Displayed title
+        vscode.ViewColumn.One,   // Editor column
         {
             enableScripts: true,
             retainContextWhenHidden: true
@@ -46,9 +46,9 @@ function createWebviewPanel(context: vscode.ExtensionContext): void {
 }
 ```
 
-### VSCode-Theme-Integration
+### VSCode Theme Integration
 
-Das Webview nutzt VSCode-CSS-Variablen für nahtlose Theme-Integration:
+The webview uses VSCode CSS variables for seamless theme integration:
 
 ```css
 body {
@@ -62,13 +62,13 @@ h1 {
 }
 ```
 
-Die `var(--vscode-*)` CSS-Variablen passen sich automatisch an das aktuelle VSCode-Theme an.
+The `var(--vscode-*)` CSS variables automatically adapt to the current VSCode theme.
 
-## Architektur
+## Architecture
 
-### Command-Registrierung
+### Command Registration
 
-Commands müssen sowohl im TypeScript-Code registriert als auch in der `package.json` deklariert werden:
+Commands must be both registered in TypeScript code and declared in `package.json`:
 
 **package.json:**
 ```json
@@ -91,9 +91,9 @@ const disposableWebview = vscode.commands.registerCommand('demo.showWebview', ()
 });
 ```
 
-### Ressourcenverwaltung
+### Resource Management
 
-VSCode-Extensions müssen explizit Ressourcen verwalten. Das `ExtensionContext.subscriptions`-Array sammelt Disposable-Objekte für automatische Bereinigung:
+VSCode extensions must explicitly manage resources. The `ExtensionContext.subscriptions` array collects Disposable objects for automatic cleanup:
 
 ```typescript
 context.subscriptions.push(
@@ -103,59 +103,59 @@ context.subscriptions.push(
 );
 ```
 
-Bei Extension-Deaktivierung ruft VSCode automatisch `dispose()` auf allen registrierten Objekten auf.
+When the extension deactivates, VSCode automatically calls `dispose()` on all registered objects.
 
-## Entwicklung und Testing
+## Development and Testing
 
-### Lokale Entwicklung
+### Local Development
 
-1. **Dependencies installieren:**
+1. **Install dependencies:**
    ```bash
    yarn install
    ```
 
-2. **TypeScript kompilieren:**
+2. **Compile TypeScript:**
    ```bash
    yarn run compile
    ```
 
-3. **Extension testen:**
-   - `F5` drücken für Debug-Modus
-   - Neue VSCode-Instanz öffnet sich
-   - Statusbar-Item "Show Panel" klicken
+3. **Test extension:**
+   - Press `F5` for debug mode
+   - New VSCode instance opens
+   - Click statusbar item "Show Panel"
 
-### Watch-Modus
+### Watch Mode
 
-Für kontinuierliche Entwicklung:
+For continuous development:
 ```bash
 yarn run watch
 ```
 
 ### Linting
 
-Code-Qualität prüfen:
+Check code quality:
 ```bash
 yarn run lint
 ```
 
-## Anwendungsszenarien
+## Use Cases
 
-### Statusbar-Items eignen sich für:
-- Schnellzugriff auf häufige Funktionen
-- Anzeige von Extension-Status  
-- Toggle-Funktionen (Ein/Aus-Schalter)
+### Statusbar items are suitable for:
+- Quick access to frequent functions
+- Displaying extension status  
+- Toggle functions (on/off switches)
 
-### Webview-Panels eignen sich für:
-- Konfigurationsoberflächen
-- Datenvisualisierung
-- Formulare und Eingabemasken
-- Dokumentation und Hilfeseiten
+### Webview panels are suitable for:
+- Configuration interfaces
+- Data visualization
+- Forms and input masks
+- Documentation and help pages
 
-## Erweiterte Funktionen
+## Advanced Features
 
-### Bidirektionale Kommunikation
+### Bidirectional Communication
 
-Webviews können mit der Extension kommunizieren:
+Webviews can communicate with the extension:
 
 ```typescript
 // Extension → Webview
@@ -165,29 +165,29 @@ panel.webview.postMessage({ command: 'update', data: someData });
 panel.webview.onDidReceiveMessage(message => {
     switch (message.command) {
         case 'save':
-            // Daten verarbeiten
+            // Process data
             break;
     }
 });
 ```
 
-### Performance-Überlegungen
+### Performance Considerations
 
-- Webviews sind ressourcenintensiv - sparsam verwenden
-- HTML-Content cachen bei wiederholter Anzeige
-- Große Datenmengen chunked übertragen
+- Webviews are resource-intensive - use sparingly
+- Cache HTML content for repeated display
+- Transfer large amounts of data in chunks
 
-### Sicherheitsaspekte
+### Security Aspects
 
-- `enableScripts` nur aktivieren wenn notwendig
-- Benutzereingaben in Webviews validieren
-- Externe Ressourcen über Content Security Policy beschränken
+- Only activate `enableScripts` when necessary
+- Validate user input in webviews
+- Restrict external resources via Content Security Policy
 
-## Technische Details
+## Technical Details
 
-**Entwickelt für:** VSCode ^1.102.0  
-**Sprache:** TypeScript  
-**Build-System:** tsc + yarn  
+**Developed for:** VSCode ^1.102.0  
+**Language:** TypeScript  
+**Build System:** tsc + yarn  
 **Testing:** @vscode/test-cli
 
-Diese Implementierung bietet eine solide Grundlage für Extensions mit persistenter UI-Präsenz und flexiblen Anzeigemöglichkeiten. Die Kombination aus Statusbar-Item und Webview-Panel deckt typische Extension-Anforderungen ab und lässt sich entsprechend spezifischer Anwendungsfälle erweitern.
+This implementation provides a solid foundation for extensions with persistent UI presence and flexible display options. The combination of statusbar item and webview panel covers typical extension requirements and can be extended according to specific use cases.
