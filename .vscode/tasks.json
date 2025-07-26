@@ -8,6 +8,12 @@
 			"label": "yarn: watch",
 			"command": "yarn",
 			"args": ["run", "watch"],
+			"options": {
+				"shell": {
+					"executable": "/bin/bash",
+					"args": ["-l", "-c"]
+				}
+			},
 			"problemMatcher": "$tsc-watch",
 			"isBackground": true,
 			"presentation": {
@@ -23,6 +29,12 @@
 			"label": "yarn: compile",
 			"command": "yarn",
 			"args": ["run", "compile"],
+			"options": {
+				"shell": {
+					"executable": "/bin/bash",
+					"args": ["-l", "-c"]
+				}
+			},
 			"group": "build",
 			"presentation": {
 				"echo": true,
@@ -34,9 +46,53 @@
 		},
 		{
 			"type": "shell",
-			"label": "yarn: test",
+			"label": "yarn: test:unit",
 			"command": "yarn",
-			"args": ["run", "test"],
+			"args": ["run", "test:unit"],
+			"options": {
+				"shell": {
+					"executable": "/bin/bash",
+					"args": ["-l", "-c"]
+				}
+			},
+			"group": "test",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			}
+		},
+		{
+			"type": "shell",
+			"label": "yarn: test:integration",
+			"command": "yarn",
+			"args": ["run", "test:integration"],
+			"options": {
+				"shell": {
+					"executable": "/bin/bash",
+					"args": ["-l", "-c"]
+				}
+			},
+			"group": "test",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			}
+		},
+		{
+			"type": "shell",
+			"label": "yarn: test:all",
+			"command": "yarn",
+			"args": ["run", "test:all"],
+			"options": {
+				"shell": {
+					"executable": "/bin/bash",
+					"args": ["-l", "-c"]
+				}
+			},
 			"group": "test",
 			"presentation": {
 				"echo": true,
@@ -50,6 +106,12 @@
 			"label": "yarn: pretest",
 			"command": "yarn",
 			"args": ["run", "pretest"],
+			"options": {
+				"shell": {
+					"executable": "/bin/bash",
+					"args": ["-l", "-c"]
+				}
+			},
 			"group": "test",
 			"presentation": {
 				"echo": true,

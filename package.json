@@ -1,7 +1,7 @@
 {
   "name": "demo",
   "displayName": "demo",
-  "description": "VSCode Extension Demo mit Unit Testing",
+  "description": "VSCode Extension Demo mit Unit & Integration Testing",
   "version": "0.0.1",
   "license": "MIT",
   "engines": {
@@ -30,7 +30,10 @@
     "watch": "tsc -watch -p ./",
     "pretest": "yarn run compile && yarn run lint",
     "lint": "eslint src",
-    "test": "mocha out/test/**/*.test.js"
+    "test": "yarn run test:unit",
+    "test:unit": "mocha out/test/unit/**/*.test.js",
+    "test:integration": "vscode-test",
+    "test:all": "yarn run test:unit && yarn run test:integration"
   },
   "devDependencies": {
     "@types/vscode": "^1.102.0",
@@ -38,6 +41,7 @@
     "@types/node": "20.x",
     "@typescript-eslint/eslint-plugin": "^8.31.1",
     "@typescript-eslint/parser": "^8.31.1",
+    "@vscode/test-cli": "^0.0.11",
     "eslint": "^9.25.1",
     "typescript": "^5.8.3",
     "mocha": "^11.7.1"

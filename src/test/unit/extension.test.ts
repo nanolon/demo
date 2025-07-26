@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 // Import business logic functions directly (no VSCode dependencies)
-import { isValidFilename, createGreeting, countWords } from '../utils';
+import { isValidFilename, createGreeting, countWords } from '../../utils';
 
 describe('Business Logic Unit Tests', () => {
 
