@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-// CompletionItemProvider für Autovervollständigung
+// CompletionItemProvider for auto-completion
 class DemoCompletionProvider implements vscode.CompletionItemProvider {
     
     provideCompletionItems(
@@ -10,15 +10,15 @@ class DemoCompletionProvider implements vscode.CompletionItemProvider {
         context: vscode.CompletionContext
     ): vscode.ProviderResult<vscode.CompletionItem[] | vscode.CompletionList> {
         
-        // Einfache Completion Items erstellen
+        // Create simple completion items
         const helloWorldItem = new vscode.CompletionItem('Hello World', vscode.CompletionItemKind.Snippet);
         helloWorldItem.insertText = new vscode.SnippetString('Hello World from ${1:Demo}!');
-        helloWorldItem.documentation = new vscode.MarkdownString('Fügt eine Hello World Nachricht ein');
+        helloWorldItem.documentation = new vscode.MarkdownString('Inserts a Hello World message');
         helloWorldItem.detail = 'Demo Extension Snippet';
         
         const consoleLogItem = new vscode.CompletionItem('demo.log', vscode.CompletionItemKind.Function);
         consoleLogItem.insertText = new vscode.SnippetString('console.log("${1:message}");');
-        consoleLogItem.documentation = new vscode.MarkdownString('Erstellt einen console.log Aufruf');
+        consoleLogItem.documentation = new vscode.MarkdownString('Creates a console.log call');
         consoleLogItem.detail = 'Logging function';
         
         const functionItem = new vscode.CompletionItem('demo.function', vscode.CompletionItemKind.Function);
@@ -28,9 +28,9 @@ class DemoCompletionProvider implements vscode.CompletionItemProvider {
             '\treturn ${4:result};',
             '}'
         ].join('\n'));
-        functionItem.documentation = new vscode.MarkdownString('Erstellt eine Funktionsvorlage');
+        functionItem.documentation = new vscode.MarkdownString('Creates a function template');
         
-        // Zusätzliche Completion Items für erweiterte Demo
+        // Additional completion items for extended demo
         const classItem = new vscode.CompletionItem('demo.class', vscode.CompletionItemKind.Class);
         classItem.insertText = new vscode.SnippetString([
             'class ${1:ClassName} {',
@@ -43,7 +43,7 @@ class DemoCompletionProvider implements vscode.CompletionItemProvider {
             '\t}',
             '}'
         ].join('\n'));
-        classItem.documentation = new vscode.MarkdownString('Erstellt eine TypeScript/JavaScript Klasse');
+        classItem.documentation = new vscode.MarkdownString('Creates a TypeScript/JavaScript class');
         
         const interfaceItem = new vscode.CompletionItem('demo.interface', vscode.CompletionItemKind.Interface);
         interfaceItem.insertText = new vscode.SnippetString([
@@ -52,13 +52,13 @@ class DemoCompletionProvider implements vscode.CompletionItemProvider {
             '\t${4:methodName}(): ${5:returnType};',
             '}'
         ].join('\n'));
-        interfaceItem.documentation = new vscode.MarkdownString('Erstellt ein TypeScript Interface');
+        interfaceItem.documentation = new vscode.MarkdownString('Creates a TypeScript interface');
         
         return [helloWorldItem, consoleLogItem, functionItem, classItem, interfaceItem];
     }
 }
 
-// HoverProvider für Mouseover-Informationen
+// HoverProvider for mouseover information
 class DemoHoverProvider implements vscode.HoverProvider {
     
     provideHover(
@@ -74,65 +74,65 @@ class DemoHoverProvider implements vscode.HoverProvider {
         
         const word = document.getText(range);
         
-        // Verschiedene Hover-Informationen je nach Wort
+        // Different hover information depending on word
         switch (word.toLowerCase()) {
             case 'hello':
                 return new vscode.Hover(
-                    new vscode.MarkdownString('**Hello** - Begrüßung\n\nTypische Verwendung in Demo-Anwendungen.'),
+                    new vscode.MarkdownString('**Hello** - Greeting\n\nTypical usage in demo applications.'),
                     range
                 );
             
             case 'world':
                 return new vscode.Hover([
-                    new vscode.MarkdownString('**World** - Welt'),
-                    new vscode.MarkdownString('Häufig verwendeter Platzhalter in Programmierbeispielen.')
+                    new vscode.MarkdownString('**World** - World'),
+                    new vscode.MarkdownString('Commonly used placeholder in programming examples.')
                 ], range);
             
             case 'demo':
                 const hoverContent = new vscode.MarkdownString();
                 hoverContent.appendMarkdown('**Demo Extension**\n\n');
-                hoverContent.appendMarkdown('Diese Extension demonstriert Language Features:\n');
-                hoverContent.appendMarkdown('- Autovervollständigung\n');
-                hoverContent.appendMarkdown('- Hover-Informationen\n');
+                hoverContent.appendMarkdown('This extension demonstrates Language Features:\n');
+                hoverContent.appendMarkdown('- Auto-completion\n');
+                hoverContent.appendMarkdown('- Hover information\n');
                 hoverContent.appendCodeblock('typescript', 'vscode.languages.registerCompletionItemProvider()');
                 
                 return new vscode.Hover(hoverContent, range);
             
             case 'function':
                 return new vscode.Hover(
-                    new vscode.MarkdownString('**Function** - JavaScript/TypeScript Funktionsdeklaration\n\n```typescript\nfunction name(params) { return value; }\n```'),
+                    new vscode.MarkdownString('**Function** - JavaScript/TypeScript function declaration\n\n```typescript\nfunction name(params) { return value; }\n```'),
                     range
                 );
             
             case 'class':
                 return new vscode.Hover(
-                    new vscode.MarkdownString('**Class** - TypeScript/JavaScript Klassendeklaration\n\n```typescript\nclass ClassName {\n  constructor() {}\n}\n```'),
+                    new vscode.MarkdownString('**Class** - TypeScript/JavaScript class declaration\n\n```typescript\nclass ClassName {\n  constructor() {}\n}\n```'),
                     range
                 );
             
             case 'interface':
                 return new vscode.Hover(
-                    new vscode.MarkdownString('**Interface** - TypeScript Interface Definition\n\n```typescript\ninterface IName {\n  property: type;\n}\n```'),
+                    new vscode.MarkdownString('**Interface** - TypeScript interface definition\n\n```typescript\ninterface IName {\n  property: type;\n}\n```'),
                     range
                 );
             
             case 'vscode':
                 const vscodeInfo = new vscode.MarkdownString();
                 vscodeInfo.appendMarkdown('**Visual Studio Code**\n\n');
-                vscodeInfo.appendMarkdown('Moderner, erweiterbarer Code-Editor mit umfangreicher Extension-API.\n\n');
-                vscodeInfo.appendMarkdown('**Extension API Hauptbereiche:**\n');
+                vscodeInfo.appendMarkdown('Modern, extensible code editor with comprehensive extension API.\n\n');
+                vscodeInfo.appendMarkdown('**Extension API Main Areas:**\n');
                 vscodeInfo.appendMarkdown('- `vscode.languages` - Language Features\n');
-                vscodeInfo.appendMarkdown('- `vscode.window` - UI Interaktion\n');
+                vscodeInfo.appendMarkdown('- `vscode.window` - UI Interaction\n');
                 vscodeInfo.appendMarkdown('- `vscode.workspace` - Workspace Management\n');
                 vscodeInfo.appendMarkdown('- `vscode.commands` - Command Registration\n');
                 
                 return new vscode.Hover(vscodeInfo, range);
                 
             default:
-                // Generische Information für andere Wörter
+                // Generic information for other words
                 if (word.length > 3) {
                     return new vscode.Hover(
-                        new vscode.MarkdownString(`Wort: **${word}** (${word.length} Zeichen)`),
+                        new vscode.MarkdownString(`Word: **${word}** (${word.length} characters)`),
                         range
                     );
                 }
@@ -143,34 +143,34 @@ class DemoHoverProvider implements vscode.HoverProvider {
 }
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log('Demo Extension mit Language Features wird aktiviert');
+    console.log('Demo Extension with Language Features is being activated');
 
-    // Ursprüngliches Hello World Kommando
+    // Original Hello World command
     const helloWorldCommand = vscode.commands.registerCommand('demo.helloWorld', () => {
         vscode.window.showInformationMessage('Hello World from demo!');
     });
 
-    // Document Selector für TypeScript und JavaScript Dateien
+    // Document Selector for TypeScript and JavaScript files
     const documentSelector: vscode.DocumentSelector = [
         { scheme: 'file', language: 'typescript' },
         { scheme: 'file', language: 'javascript' },
         { scheme: 'file', language: 'plaintext' }
     ];
 
-    // CompletionItemProvider registrieren
+    // Register CompletionItemProvider
     const completionProvider = vscode.languages.registerCompletionItemProvider(
         documentSelector,
         new DemoCompletionProvider(),
-        '.' // Trigger-Zeichen für Completion
+        '.' // Trigger character for completion
     );
 
-    // HoverProvider registrieren
+    // Register HoverProvider
     const hoverProvider = vscode.languages.registerHoverProvider(
         documentSelector,
         new DemoHoverProvider()
     );
 
-    // Zusätzliches Kommando für Demo-Zwecke
+    // Additional command for demo purposes
     const showInfoCommand = vscode.commands.registerCommand('demo.showLanguageInfo', () => {
         const editor = vscode.window.activeTextEditor;
         if (editor) {
@@ -179,14 +179,14 @@ export function activate(context: vscode.ExtensionContext) {
             const word = document.getText(document.getWordRangeAtPosition(position));
             
             vscode.window.showInformationMessage(
-                `Aktives Wort: "${word}" in ${document.languageId}-Datei`
+                `Active word: "${word}" in ${document.languageId} file`
             );
         } else {
-            vscode.window.showWarningMessage('Keine aktive Datei geöffnet');
+            vscode.window.showWarningMessage('No active file opened');
         }
     });
 
-    // Alle Disposables zur Subscription hinzufügen
+    // Add all disposables to subscription
     context.subscriptions.push(
         helloWorldCommand,
         completionProvider,
@@ -196,5 +196,5 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {
-    // Cleanup wird automatisch durch VSCode verwaltet
+    // Cleanup is automatically managed by VSCode
 }
