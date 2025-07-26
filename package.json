@@ -18,8 +18,8 @@
         "title": "Hello World"
       },
       {
-        "command": "demo.showWebview",
-        "title": "Show Webview Panel"
+        "command": "sketchnote.showWebview",
+        "title": "Sketchnote Vorschau öffnen"
       }
     ]
   },

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VSCode Webviews</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+    }
+
+    body {
+      font-family: var(--vscode-font-family, sans-serif);
+      font-size: var(--vscode-font-size, 13px);
+      color: var(--vscode-foreground);
+      background-color: var(--vscode-editor-background);
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .ribbon {
+      background-color: var(--vscode-editorGutter-background, #ffe169);
+      color: var(--vscode-editor-foreground, black);
+      border: 2px solid var(--vscode-editorWidget-border, black);
+      padding: 1rem;
+      display: inline-block;
+      font-size: 1.5rem;
+      box-shadow: 3px 3px 0 var(--vscode-editorWidget-border, black);
+      margin-bottom: 1rem;
+    }
+
+    .bubble {
+      border: 2px solid var(--vscode-editorWidget-border, black);
+      border-radius: 20px;
+      padding: 1rem;
+      background-color: var(--vscode-editorHoverWidget-background, #e3fdfd);
+      box-shadow: 2px 2px var(--vscode-editorWidget-border, black);
+      font-style: italic;
+      margin-bottom: 2rem;
+    }
+
+    .columns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .box {
+      flex: 1 1 300px;
+      background: var(--vscode-editor-background);
+      color: var(--vscode-editor-foreground);
+      border: 2px solid var(--vscode-editorWidget-border);
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 3px 3px var(--vscode-editorWidget-border);
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.2rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      color: inherit;
+    }
+
+    td {
+      border: 1px solid var(--vscode-editorWidget-border);
+      padding: 0.5rem;
+      text-align: center;
+    }
+
+    td:first-child {
+      font-weight: bold;
+      background-color: var(--vscode-editorGroupHeader-tabsBackground, #f0f0f0);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="ribbon">VSCode Webviews<br>Architecture · UI · Communication</div>
+    <div class="bubble">
+      Webviews enable complex HTML-based interfaces inside VSCode extensions. They provide full design flexibility via Web technology – isolated, secure, and decoupled from Node.js.
+    </div>
+
+    <div class="columns">
+      <div class="box">
+        <h2>Webview Types</h2>
+        <ul>
+          <li><strong>WebviewPanel</strong>: fullscreen, tab-based</li>
+          <li><strong>WebviewView</strong>: sidebar integration</li>
+          <li><strong>CustomEditor</strong>: file-type override</li>
+        </ul>
+      </div>
+
+      <div class="box">
+        <h2>Architecture</h2>
+        <ul>
+          <li>Chromium sandbox context</li>
+          <li>No direct Node.js access</li>
+          <li>Strict message-passing design</li>
+          <li>Shared state via <code>getState()</code></li>
+        </ul>
+      </div>
+
+      <div class="box">
+        <h2>Use Cases</h2>
+        <ul>
+          <li>Configuration UIs</li>
+          <li>Dashboards and status views</li>
+          <li>Domain-specific editors</li>
+          <li>Interactive diagrams and charts</li>
+        </ul>
+      </div>
+
+      <div class="box">
+        <h2>Communication</h2>
+        <ul>
+          <li>From Webview: <code>vscode.postMessage()</code></li>
+          <li>From Extension: <code>webview.postMessage()</code></li>
+          <li>Event listeners on both sides</li>
+        </ul>
+      </div>
+
+      <div class="box">
+        <h2>Security Aspects</h2>
+        <ul>
+          <li>Content Security Policy (CSP)</li>
+          <li>Nonce for script tags</li>
+          <li>Whitelisted resource URIs</li>
+        </ul>
+      </div>
+
+      <div class="box">
+        <h2>Style & Theme Integration</h2>
+        <ul>
+          <li>Use <code>--vscode-*</code> CSS variables</li>
+          <li>Consistent dark/light mode behavior</li>
+          <li>Match editor font and spacing</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
