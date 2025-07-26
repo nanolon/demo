@@ -103,7 +103,7 @@ async function createQuickPickItems(files: vscode.Uri[]): Promise<FileQuickPickI
         return {
             label: fileName,                                    // Main display: filename
             description: directory === '.' ? '' : directory,   // Subtitle: directory
-            detail: relativePath,                              // Additional info: full path
+            detail: directory === '.' ? '' : directory,        // Additional info: full path
             uri: fileUri,
             relativePath: relativePath
         };
