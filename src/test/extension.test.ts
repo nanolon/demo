@@ -1,262 +1,302 @@
 import * as assert from 'assert';
+// Import business logic functions directly (no VSCode dependencies)
+import { isValidFilename, createGreeting, countWords } from '../utils';
 
-describe('Extension Test Suite', () => {
+describe('Business Logic Unit Tests', () => {
 
-	let testData: any;
+	describe('isValidFilename()', () => {
 
-	before(() => {
-		// Setup vor allen Tests
-		console.log('Starting test suite...');
-		testData = {
-			numbers: [1, 2, 3, 4, 5],
-			strings: ['hello', 'world', 'test'],
-			users: [
-				{ name: 'John', age: 30 },
-				{ name: 'Jane', age: 25 }
-			]
-		};
-	});
-
-	after(() => {
-		// Cleanup nach allen Tests
-		console.log('Test suite completed.');
-		testData = null;
-	});
-
-	beforeEach(() => {
-		// Setup vor jedem Test
-		console.log('Running test...');
-	});
-
-	afterEach(() => {
-		// Cleanup nach jedem Test
-		console.log('Test completed.');
-	});
-
-	describe('Array Operations', () => {
-
-		it('should find element in array', () => {
+		it('should return true for valid filename', () => {
 			// Arrange
-			const array = testData.numbers;
-			const searchValue = 3;
-			const expectedIndex = 2;
-
+			const filename = 'test.txt';
+			
 			// Act
-			const result = array.indexOf(searchValue);
-
+			const result = isValidFilename(filename);
+			
 			// Assert
-			assert.strictEqual(result, expectedIndex);
+			assert.strictEqual(result, true);
 		});
 
-		it('should return -1 for missing element', () => {
+		it('should return true for filename with valid special characters', () => {
 			// Arrange
-			const array = testData.numbers;
-			const searchValue = 99;
-			const expectedIndex = -1;
-
-			// Act
-			const result = array.indexOf(searchValue);
-
-			// Assert
-			assert.strictEqual(result, expectedIndex);
+			const validFilenames = ['test-file.txt', 'file_name.js', 'document.pdf', 'image.png'];
+			
+			// Act & Assert
+			validFilenames.forEach(filename => {
+				const result = isValidFilename(filename);
+				assert.strictEqual(result, true, `Filename "${filename}" should be valid`);
+			});
 		});
 
-		it('should filter even numbers', () => {
+		it('should return false for empty filename', () => {
 			// Arrange
-			const numbers = testData.numbers;
-			const expected = [2, 4];
-
+			const filename = '';
+			
 			// Act
-			const result = numbers.filter((n: number) => n % 2 === 0);
-
+			const result = isValidFilename(filename);
+			
 			// Assert
-			assert.deepStrictEqual(result, expected);
+			assert.strictEqual(result, false);
 		});
 
-		it('should map array correctly', () => {
+		it('should return false for whitespace-only filename', () => {
 			// Arrange
-			const numbers = [1, 2, 3];
-			const expected = [2, 4, 6];
-
+			const filename = '   ';
+			
 			// Act
-			const result = numbers.map(n => n * 2);
-
+			const result = isValidFilename(filename);
+			
 			// Assert
-			assert.deepStrictEqual(result, expected);
+			assert.strictEqual(result, false);
 		});
 
-		it('should reduce array to sum', () => {
+		it('should return false for filename with invalid characters', () => {
 			// Arrange
-			const numbers = [1, 2, 3, 4];
-			const expected = 10;
+			const invalidFilenames = [
+				'test<.txt',  // < character
+				'test>.txt',  // > character
+				'test:.txt',  // : character
+				'test".txt',  // " character
+				'test/.txt',  // / character
+				'test\\.txt', // \ character
+				'test|.txt',  // | character
+				'test?.txt',  // ? character
+				'test*.txt'   // * character
+			];
+			
+			// Act & Assert
+			invalidFilenames.forEach(filename => {
+				const result = isValidFilename(filename);
+				assert.strictEqual(result, false, `Filename "${filename}" should be invalid`);
+			});
+		});
 
-			// Act
-			const result = numbers.reduce((sum, n) => sum + n, 0);
-
-			// Assert
-			assert.strictEqual(result, expected);
+		it('should handle null and undefined input', () => {
+			// Act & Assert
+			assert.strictEqual(isValidFilename(null as any), false);
+			assert.strictEqual(isValidFilename(undefined as any), false);
 		});
 	});
 
-	describe('String Operations', () => {
+	describe('createGreeting()', () => {
 
-		it('should convert to uppercase', () => {
+		it('should create personalized greeting', () => {
 			// Arrange
-			const input = 'hello';
-			const expected = 'HELLO';
-
+			const name = 'Alice';
+			const expected = 'Hello Alice!';
+			
 			// Act
-			const result = input.toUpperCase();
-
+			const result = createGreeting(name);
+			
 			// Assert
 			assert.strictEqual(result, expected);
 		});
 
-		it('should trim whitespace', () => {
+		it('should create greeting for different names', () => {
 			// Arrange
-			const input = '  test  ';
-			const expected = 'test';
+			const testCases = [
+				{ name: 'Bob', expected: 'Hello Bob!' },
+				{ name: 'Charlie', expected: 'Hello Charlie!' },
+				{ name: 'Diana', expected: 'Hello Diana!' }
+			];
+			
+			// Act & Assert
+			testCases.forEach(testCase => {
+				const result = createGreeting(testCase.name);
+				assert.strictEqual(result, testCase.expected);
+			});
+		});
 
+		it('should trim whitespace from name', () => {
+			// Arrange
+			const name = '  Bob  ';
+			const expected = 'Hello Bob!';
+			
 			// Act
-			const result = input.trim();
-
+			const result = createGreeting(name);
+			
 			// Assert
 			assert.strictEqual(result, expected);
 		});
 
-		it('should split string by delimiter', () => {
+		it('should return default greeting for empty name', () => {
 			// Arrange
-			const input = 'apple,banana,cherry';
-			const delimiter = ',';
-			const expected = ['apple', 'banana', 'cherry'];
-
+			const name = '';
+			const expected = 'Hello World!';
+			
 			// Act
-			const result = input.split(delimiter);
-
-			// Assert
-			assert.deepStrictEqual(result, expected);
-		});
-
-		it('should check if string includes substring', () => {
-			// Arrange
-			const text = 'The quick brown fox';
-			const substring = 'quick';
-			const expected = true;
-
-			// Act
-			const result = text.includes(substring);
-
+			const result = createGreeting(name);
+			
 			// Assert
 			assert.strictEqual(result, expected);
 		});
 
-		it('should replace substring', () => {
+		it('should return default greeting for whitespace-only name', () => {
 			// Arrange
-			const text = 'Hello World';
-			const searchValue = 'World';
-			const replaceValue = 'Universe';
-			const expected = 'Hello Universe';
-
+			const name = '   ';
+			const expected = 'Hello World!';
+			
 			// Act
-			const result = text.replace(searchValue, replaceValue);
-
+			const result = createGreeting(name);
+			
 			// Assert
 			assert.strictEqual(result, expected);
+		});
+
+		it('should handle null and undefined input', () => {
+			// Act & Assert
+			assert.strictEqual(createGreeting(null as any), 'Hello World!');
+			assert.strictEqual(createGreeting(undefined as any), 'Hello World!');
 		});
 	});
 
-	describe('Object Operations', () => {
+	describe('countWords()', () => {
 
-		it('should access object properties', () => {
+		it('should count words in simple text', () => {
 			// Arrange
-			const user = testData.users[0];
-			const expectedName = 'John';
-			const expectedAge = 30;
-
+			const text = 'Hello world test';
+			const expected = 3;
+			
 			// Act
-			const name = user.name;
-			const age = user.age;
-
-			// Assert
-			assert.strictEqual(name, expectedName);
-			assert.strictEqual(age, expectedAge);
-		});
-
-		it('should find user by name', () => {
-			// Arrange
-			const users = testData.users;
-			const searchName = 'Jane';
-			const expected = { name: 'Jane', age: 25 };
-
-			// Act
-			const result = users.find((user: { name: string; }) => user.name === searchName);
-
-			// Assert
-			assert.deepStrictEqual(result, expected);
-		});
-
-		it('should get array of names', () => {
-			// Arrange
-			const users = testData.users;
-			const expected = ['John', 'Jane'];
-
-			// Act
-			const result = users.map((user: { name: any; }) => user.name);
-
-			// Assert
-			assert.deepStrictEqual(result, expected);
-		});
-	});
-
-	describe('Edge Cases', () => {
-
-		it('should handle null values', () => {
-			// Arrange
-			const input = null;
-			const expected = true;
-
-			// Act
-			const result = input === null;
-
+			const result = countWords(text);
+			
 			// Assert
 			assert.strictEqual(result, expected);
 		});
 
-		it('should handle undefined values', () => {
+		it('should count single word', () => {
 			// Arrange
-			const obj: any = {};
-			const expected = undefined;
-
+			const text = 'Hello';
+			const expected = 1;
+			
 			// Act
-			const result = obj.nonExistentProperty;
-
+			const result = countWords(text);
+			
 			// Assert
 			assert.strictEqual(result, expected);
 		});
 
-		it('should handle empty arrays', () => {
+		it('should handle multiple spaces between words', () => {
 			// Arrange
-			const emptyArray: number[] = [];
+			const text = 'Hello    world     test';
+			const expected = 3;
+			
+			// Act
+			const result = countWords(text);
+			
+			// Assert
+			assert.strictEqual(result, expected);
+		});
+
+		it('should handle text with newlines and tabs', () => {
+			// Arrange
+			const text = 'Hello\nworld\ttest';
+			const expected = 3;
+			
+			// Act
+			const result = countWords(text);
+			
+			// Assert
+			assert.strictEqual(result, expected);
+		});
+
+		it('should handle mixed whitespace characters', () => {
+			// Arrange
+			const text = '  Hello\n\nworld\t\t\ttest  ';
+			const expected = 3;
+			
+			// Act
+			const result = countWords(text);
+			
+			// Assert
+			assert.strictEqual(result, expected);
+		});
+
+		it('should return 0 for empty text', () => {
+			// Arrange
+			const text = '';
 			const expected = 0;
-
+			
 			// Act
-			const result = emptyArray.length;
-
+			const result = countWords(text);
+			
 			// Assert
 			assert.strictEqual(result, expected);
 		});
 
-		it('should handle empty strings', () => {
+		it('should return 0 for whitespace-only text', () => {
 			// Arrange
-			const emptyString = '';
-			const expected = true;
-
+			const text = '   \n\t  ';
+			const expected = 0;
+			
 			// Act
-			const result = emptyString.length === 0;
+			const result = countWords(text);
+			
+			// Assert
+			assert.strictEqual(result, expected);
+		});
 
+		it('should handle null and undefined input', () => {
+			// Act & Assert
+			assert.strictEqual(countWords(null as any), 0);
+			assert.strictEqual(countWords(undefined as any), 0);
+		});
+
+		it('should count words with punctuation correctly', () => {
+			// Arrange
+			const text = 'Hello, world! How are you?';
+			const expected = 5;
+			
+			// Act
+			const result = countWords(text);
+			
 			// Assert
 			assert.strictEqual(result, expected);
 		});
 	});
 
+	describe('Edge Cases and Boundary Testing', () => {
+
+		it('should handle very long filenames', () => {
+			// Arrange
+			const longFilename = 'a'.repeat(100) + '.txt';
+			
+			// Act
+			const result = isValidFilename(longFilename);
+			
+			// Assert
+			assert.strictEqual(result, true);
+		});
+
+		it('should handle very long text for word counting', () => {
+			// Arrange
+			const longText = 'word '.repeat(1000); // 1000 words
+			const expected = 1000;
+			
+			// Act
+			const result = countWords(longText);
+			
+			// Assert
+			assert.strictEqual(result, expected);
+		});
+
+		it('should handle special unicode characters in names', () => {
+			// Arrange
+			const unicodeName = 'José';
+			const expected = 'Hello José!';
+			
+			// Act
+			const result = createGreeting(unicodeName);
+			
+			// Assert
+			assert.strictEqual(result, expected);
+		});
+
+		it('should handle empty string vs null consistently', () => {
+			// Arrange & Act & Assert
+			assert.strictEqual(isValidFilename(''), isValidFilename(null as any));
+			assert.strictEqual(createGreeting(''), createGreeting(null as any));
+			assert.strictEqual(countWords(''), countWords(null as any));
+		});
+	});
 });

@@ -1,8 +1,9 @@
 {
   "name": "demo",
   "displayName": "demo",
-  "description": "",
+  "description": "VSCode Extension Demo mit Unit Testing",
   "version": "0.0.1",
+  "license": "MIT",
   "engines": {
     "vscode": "^1.102.0"
   },
@@ -16,6 +17,10 @@
       {
         "command": "demo.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "demo.countWords",
+        "title": "Count Words"
       }
     ]
   },
@@ -25,7 +30,7 @@
     "watch": "tsc -watch -p ./",
     "pretest": "yarn run compile && yarn run lint",
     "lint": "eslint src",
-    "test": "yarn run compile && mocha out/test/**/*.test.js"
+    "test": "mocha out/test/**/*.test.js"
   },
   "devDependencies": {
     "@types/vscode": "^1.102.0",
