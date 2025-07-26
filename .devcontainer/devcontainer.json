@@ -1,0 +1,43 @@
+{
+	"name": "VSCode Extension Development",
+	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
+	
+	"features": {
+		"ghcr.io/devcontainers/features/github-cli:1": {},
+		"ghcr.io/devcontainers/features/git:1": {}
+	},
+
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"terminal.integrated.defaultProfile.linux": "bash",
+				"typescript.preferences.preferTypeOnlyAutoImports": true,
+				"editor.formatOnSave": true,
+				"editor.codeActionsOnSave": {
+					"source.fixAll.eslint": "explicit"
+				},
+				"typescript.suggest.autoImports": true
+			},
+			"extensions": [
+				"ms-vscode.vscode-typescript-next",
+				"dbaeumer.vscode-eslint",
+				"ms-vscode.extension-test-runner",
+				"GitHub.vscode-pull-request-github"
+			]
+		}
+	},
+
+	"onCreateCommand": "npm install -g yarn",
+	
+	"postCreateCommand": "yarn install && yarn run compile",
+
+	"forwardPorts": [3000, 8080],
+
+	"portsAttributes": {
+		"3000": {
+			"label": "Development Server"
+		}
+	},
+
+	"remoteUser": "node"
+}
