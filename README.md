@@ -1,518 +1,569 @@
-# VSCode Extension Demo - Unit Testing für reine Funktionen
+# VSCode Extension Development - Practical Guide for Testing and Debugging
 
-Diese VSCode Extension demonstriert professionelle Unit Test-Praktiken für Extension-Entwicklung. Der Fokus liegt auf **isolierten Funktionen ohne VSCode-Dependencies** - dem Fundament testbarer Extension-Architektur.
+This guide systematically walks you through developing and testing VSCode extensions. You will learn how to practically implement unit tests and integration tests, debug effectively, and work in both local and cloud environments.
 
-## Projektstruktur
+## 🎯 What You Will Learn
 
-```
-├── src/
-│   ├── extension.ts          # Extension mit exportierten, testbaren Funktionen
-│   └── test/
-│       └── extension.test.ts # Unit Tests für reine Funktionen
-├── package.json              # Extension-Manifest mit Mocha-Test-Setup  
-├── tsconfig.json            # TypeScript-Konfiguration
-└── .vscode/
-    ├── launch.json          # Debug-Konfiguration
-    └── tasks.json           # Build-Tasks
-```
+After completing this tutorial, you will be able to develop VSCode extensions with professional testing practices, utilize various debug configurations effectively, and work seamlessly in both local and cloud development environments.
 
-## Testbare vs. Nicht-testbare Architektur
+## 🚀 Setup: From Repository to Running Extension
 
-### ✅ Unit-testbar: Reine Funktionen
+### Step 1: Choose Your Development Environment
 
-```typescript
-// Geschäftslogik ohne Dependencies
-export function isValidFilename(filename: string): boolean {
-    if (!filename || filename.trim().length === 0) return false;
-    return !/[<>:"/\\|?*]/.test(filename);
-}
+You have two options - choose the one that fits your situation best:
 
-export function countWords(text: string): number {
-    if (!text || text.trim().length === 0) return 0;
-    return text.trim().split(/\s+/).length;
-}
-```
+**Option A: GitHub Codespaces (Recommended for Workshops)**
+1. Navigate to the GitHub repository
+2. Click the green "Code" button  
+3. Select the "Codespaces" tab
+4. Click "Create codespace on main"
+5. Wait 2-3 minutes while everything installs automatically
 
-### ❌ Nicht Unit-testbar: VSCode-Integration
+**Option B: Local Development with Devcontainer**
 
-```typescript
-// Framework-Code - braucht Integration Tests
-vscode.window.showInformationMessage(greeting);
-vscode.commands.registerCommand('demo.helloWorld', callback);
-```
+**Important Prerequisite: Docker Desktop must be installed and running!**
 
-**Architektur-Prinzip**: Geschäftslogik von Framework-Code trennen.
+1. **Install and start Docker Desktop** 
+   - Windows/Mac: Download from docker.com and install
+   - Linux: `sudo apt-get install docker-ce docker-ce-cli containerd.io`
+   - **Start Docker Desktop** and ensure it is running (Docker icon in taskbar)
 
-## Installation und Setup
+2. **Prepare VSCode**
+   - Open VSCode 
+   - Install the "Dev Containers" extension
+   - Clone the repository and open it in VSCode
 
-1. **Dependencies installieren:**
-   ```bash
-   yarn install
-   ```
+3. **Start the container**
+   - VSCode shows a notification: "Reopen in Container?" 
+   - Click "Yes" or "Reopen in Container"
+   - **Wait 3-5 minutes** while Docker downloads the container image and installs everything automatically
 
-2. **TypeScript kompilieren:**
-   ```bash
-   yarn run compile
-   ```
+**What happens automatically?**
+- Node.js and TypeScript are installed
+- All required VSCode extensions are loaded
+- Dependencies are installed via `yarn install`
+- Code gets compiled automatically
+- Port forwarding is configured
 
-3. **Unit Tests ausführen:**
-   ```bash
-   yarn run test
-   ```
+### Step 2: First Function Check with F5
 
-## Architektur-Trennung für testbare VSCode Extensions
+The project is configured so you can immediately work with **F5** - this is the VSCode standard for extension development.
 
-### Problem: VSCode-Dependencies in Unit Tests
+**Initial function check:**
+1. **Press F5**
+2. **Select "Run Extension"** from the dropdown list
+3. **A new VSCode instance opens** - this is your "Extension Development Host"
+4. **In the new instance:** Press `Ctrl+Shift+P` and type "Hello World"
+5. **Execute the command** - you should see a message: "Hello VSCode Extension Developer!"
 
-**Fehlgeschlagener Ansatz:**
-```
-src/
-├── extension.ts          # Enthält: VSCode-Import + Geschäftslogik
-└── test/
-    └── extension.test.ts # Importiert extension.ts → VSCode-Fehler
-```
+**If this works:** Perfect! Your setup is correct.
 
-**Fehler:**
-```
-Error: Cannot find module 'vscode'
-```
-
-**Ursache:** Tests importieren `extension.ts`, welches `import * as vscode` enthält. Node.js kann VSCode-Modul nicht auflösen.
-
-### Lösung: Layered Architecture
-
-**Korrekte Struktur:**
-```
-src/
-├── utils.ts             # Reine Geschäftslogik (keine VSCode-Dependencies)
-├── extension.ts         # VSCode-Integration (importiert utils.ts)  
-└── test/
-    └── extension.test.ts # Importiert utils.ts (direkt testbar)
-```
-
-#### Layer 1: Business Logic (`utils.ts`)
-
-```typescript
-// ✅ Unit-testbar: Keine External Dependencies
-export function isValidFilename(filename: string): boolean {
-    if (!filename || filename.trim().length === 0) return false;
-    return !/[<>:"/\\|?*]/.test(filename);
-}
-
-export function createGreeting(name: string): string {
-    if (!name || name.trim().length === 0) return "Hello World!";
-    return `Hello ${name.trim()}!`;
-}
-
-export function countWords(text: string): number {
-    if (!text || text.trim().length === 0) return 0;
-    return text.trim().split(/\s+/).length;
-}
-```
-
-**Eigenschaften:**
-- Reine Funktionen (deterministic, side-effect-free)
-- Keine Imports außer Node.js Built-ins
-- Direkt in Standard Node.js-Umgebung testbar
-
-#### Layer 2: VSCode Integration (`extension.ts`)
-
-```typescript
-import * as vscode from 'vscode';
-import { createGreeting, countWords } from './utils';
-
-export function activate(context: vscode.ExtensionContext) {
-    const disposable = vscode.commands.registerCommand('demo.helloWorld', () => {
-        const greeting = createGreeting("VSCode Extension Developer");
-        vscode.window.showInformationMessage(greeting);
-    });
-
-    const wordCountDisposable = vscode.commands.registerCommand('demo.countWords', () => {
-        const editor = vscode.window.activeTextEditor;
-        if (editor) {
-            const text = editor.document.getText();
-            const wordCount = countWords(text);
-            vscode.window.showInformationMessage(`Word count: ${wordCount}`);
-        }
-    });
-
-    context.subscriptions.push(disposable, wordCountDisposable);
-}
-```
-
-**Eigenschaften:**
-- VSCode-API-Interaktion
-- Importiert Geschäftslogik aus `utils.ts`
-- Dünner Layer ohne komplexe Logik
-
-#### Layer 3: Unit Tests (`extension.test.ts`)
-
-```typescript
-import * as assert from 'assert';
-import { isValidFilename, createGreeting, countWords } from '../utils';
-
-describe('Business Logic Unit Tests', () => {
-    it('should validate filename correctly', () => {
-        assert.strictEqual(isValidFilename('test.txt'), true);
-        assert.strictEqual(isValidFilename('test<.txt'), false);
-    });
-});
-```
-
-**Eigenschaften:**
-- Importiert direkt aus `utils.ts` (keine VSCode-Dependencies)
-- Läuft in Standard Node.js/Mocha-Umgebung
-- Schnelle Ausführung, keine Extension Host erforderlich
-
-### Vorteile dieser Architektur
-
-#### 1. Testbarkeit
-- **Unit Tests**: Schnell, isoliert, deterministisch
-- **Integration Tests**: Separat, falls VSCode-API-Tests benötigt
-
-#### 2. Separation of Concerns
-- **Business Logic**: Unabhängig von VSCode-Framework
-- **Integration Logic**: Fokus auf VSCode-API-Nutzung
-
-#### 3. Wiederverwendbarkeit
-- Geschäftslogik kann in anderen Kontexten genutzt werden
-- Einfaches Refactoring ohne VSCode-Dependencies
-
-#### 4. Development Experience
-- Schnelle Test-Zyklen durch normale Node.js-Ausführung
-- Einfaches Debugging ohne Extension Host
-
-### Migration bestehender Extensions
-
-#### Schritt 1: Geschäftslogik identifizieren
-
-```typescript
-// Vorher: Alles in extension.ts
-export function activate(context: vscode.ExtensionContext) {
-    const disposable = vscode.commands.registerCommand('demo.process', () => {
-        const editor = vscode.window.activeTextEditor;
-        if (editor) {
-            const text = editor.document.getText();
-            // ⚠️ Diese Logik gehört in utils.ts
-            const words = text.trim().split(/\s+/).length;
-            vscode.window.showInformationMessage(`Words: ${words}`);
-        }
-    });
-}
-```
-
-#### Schritt 2: Reine Funktionen extrahieren
-
-```typescript
-// utils.ts - Extrahierte Geschäftslogik
-export function countWords(text: string): number {
-    if (!text || text.trim().length === 0) return 0;
-    return text.trim().split(/\s+/).length;
-}
-
-// extension.ts - Nur noch VSCode-Integration
-import { countWords } from './utils';
-
-export function activate(context: vscode.ExtensionContext) {
-    const disposable = vscode.commands.registerCommand('demo.process', () => {
-        const editor = vscode.window.activeTextEditor;
-        if (editor) {
-            const text = editor.document.getText();
-            const wordCount = countWords(text);  // ✅ Importierte Funktion
-            vscode.window.showInformationMessage(`Words: ${wordCount}`);
-        }
-    });
-}
-```
-
-#### Schritt 3: Unit Tests erstellen
-
-```typescript
-// extension.test.ts - Tests für Geschäftslogik
-import { countWords } from '../utils';
-
-describe('Word Counting', () => {
-    it('should count words correctly', () => {
-        assert.strictEqual(countWords('hello world'), 2);
-    });
-});
-```
-
-## Ausführung
-
+**If errors occur:** Run the compilation manually once:
 ```bash
-# Kompilieren
 yarn run compile
-
-# Unit Tests (utils.ts) - schnell, direkt
-yarn run test
-
-# Extension testen (integration) - separat, später
-# F5 oder VSCode Extension Development Host
 ```
 
-## Best Practices
+**Alternative: Run tests via F5**
+1. **Press F5** 
+2. **Select "Debug Unit Tests"** - all unit tests run in debug mode
+3. **Results in Debug Console:** You see test output directly in VSCode
 
-### 1. Klare Grenze zwischen Layern
-```typescript
-// ❌ Schlecht: VSCode-Code in Business Logic
-export function processFile(uri: vscode.Uri): string {
-    // Business Logic mit VSCode-Dependency
-}
+## 🎓 Understanding the Two Test Worlds
 
-// ✅ Gut: Separate Concerns
-export function processFileContent(content: string): string {
-    // Reine Business Logic
-}
+This project demonstrates two completely different types of tests - understand the difference before proceeding:
+
+**Unit Tests (Green 🟢)**
+- Test pure business logic functions
+- Run in normal Node.js environment
+- Very fast (1-2 seconds)
+- No VSCode installation required
+- For: Algorithms, validations, calculations
+
+**Integration Tests (Blue 🔵)**
+- Test VSCode API interactions
+- Require complete VSCode Extension Host environment
+- Slower (10-15 seconds)
+- For: Commands, editor integration, workspace operations
+
+This separation is crucial for efficient extension development.
+
+## 🟢 Unit Tests with F5 - The VSCode Way
+
+Forget the command line - VSCode offers a much more elegant approach through integrated launch configurations.
+
+### Running Unit Tests: F5 → "Debug Unit Tests"
+
+1. **Press F5** (or open Run and Debug panel)
+2. **Select "Debug Unit Tests"** from the dropdown list
+3. **Tests start automatically** in debug mode
+4. **Results appear** in the Debug Console
+
+**What you see in the Debug Console:**
+```
+Business Logic Unit Tests
+  isValidFilename()
+    ✓ should return true for valid filename (2ms)
+    ✓ should return false for filename with invalid characters (1ms)
+  createGreeting()
+    ✓ should create personalized greeting
+  countWords()
+    ✓ should count words in simple text
+
+16 passing (23ms)
 ```
 
-### 2. Minimale Integration Layer
-```typescript
-// ✅ Extension.ts soll dünn sein
-export function activate(context: vscode.ExtensionContext) {
-    const disposable = vscode.commands.registerCommand('cmd', () => {
-        const input = getInputFromVSCode();
-        const result = processInput(input);  // utils.ts
-        showResultInVSCode(result);
-    });
-}
-```
+**Advantages over command line:**
+- Breakpoints work automatically
+- Variables panel is immediately available  
+- Debug Console for live interaction
+- No terminal switching required
 
-### 3. Konsistente Exports
-```typescript
-// utils.ts
-export { isValidFilename, createGreeting, countWords };
+### Debug Single Test File: F5 → "Debug Single Unit Test File"
 
-// extension.ts - Re-export für Backwards Compatibility
-export { isValidFilename, createGreeting, countWords } from './utils';
-```
+**For focused development:**
+1. **Open a test file** (e.g., `src/test/unit/extension.test.ts`)
+2. **Press F5**
+3. **Select "Debug Single Unit Test File"**
+4. **Only this file is tested** - significantly faster
 
-Diese Architektur ermöglicht echte Unit Tests ohne VSCode-Dependencies und bereitet den Weg für spätere Integration Tests vor.
-
-## Test-Ausführung
-
-### Kommandozeile (Empfohlen für CI/CD)
-
+**Command line as alternative:**
+If you prefer the command line:
 ```bash
-# Vollständiger Test-Zyklus: Lint + Compile + Test
-yarn run pretest && yarn run test
-
-# Nur Tests (Code bereits kompiliert)
-yarn run test
-
-# Mit Watch-Modus für TDD
-yarn run watch  # Terminal 1: Auto-Compile
-yarn run test   # Terminal 2: Tests bei Bedarf
+yarn run test:unit          # All unit tests
 ```
 
-### VSCode Test Runner (Interaktive Entwicklung)
+**Where to find the tests?**
+Open `src/test/unit/extension.test.ts` - here you see tests that examine the `isValidFilename` function from `src/utils.ts`. Look at this file as well. These functions deliberately have no VSCode dependencies so they can be tested in a normal Node.js environment.
 
-1. **Extension Test Runner** installieren: `Ctrl+Shift+X` → "Extension Test Runner"
-2. **Test-Ansicht** öffnen: Aktivitätsleiste → Test-Symbol
-3. **Tests selektiv ausführen**: Einzelne Tests oder Gruppen
+### Working with the VSCode Test Runner
 
-**Vorteil**: Live-Feedback, selektive Testausführung, integriertes Debugging.
+1. Open the Test panel in VSCode (Activity Bar → Test icon)
+2. You see a tree structure of your tests
+3. Click individual tests and run them
+4. Green checkmarks mean passed, red X means failed
 
-## Was wird getestet?
+**Practical Exercise:**
+1. Open `src/utils.ts`
+2. Change the `countWords` function - replace `split(/\s+/)` with `split(' ')`
+3. Run the unit tests again
+4. Observe which tests now fail
+5. Look at the error messages
+6. Undo the change
 
-### 1. Geschäftslogik-Funktionen
+### Debugging Unit Tests - Your Most Important Tool
 
-**`isValidFilename(filename: string)`**
-- Gültige Dateinamen: `test.txt`, `document.pdf`, `file_name.js`
-- Ungültige Zeichen: `<>:"/\|?*`
-- Edge Cases: leer, null, undefined, whitespace
+Debugging is the key to understanding. Here's how:
 
-**`createGreeting(name: string)`**
-- Personalisierte Begrüßungen: `"Alice"` → `"Hello Alice!"`
-- Fallback-Verhalten: leer/null → `"Hello World!"`
-- Input-Sanitization: Whitespace-Trimming
+1. **Set breakpoint:** Open `src/test/unit/extension.test.ts` and click to the left of a line number - a red dot appears
+2. **Start debug:** Press F5 or go to "Run and Debug" → "Debug Unit Tests"
+3. **When breakpoint is reached:** VSCode stops and you can inspect
 
-**`countWords(text: string)`**
-- Einfacher Text: `"Hello world"` → `2`
-- Whitespace-Normalisierung: Multiple Spaces, Tabs, Newlines
-- Boundary Cases: leer, null, undefined
+**What you see in debug mode:**
+- **Variables Panel:** All local variables with their values
+- **Call Stack:** How you got to this point
+- **Debug Console:** Here you can execute code live
 
-### 2. Test-Kategorien
+**Practical Debug Exercise:**
+1. Set a breakpoint in the test for `countWords('Hello    world     test')`
+2. Start the debugger
+3. When it stops, type in the Debug Console: `text.split(/\s+/)`
+4. You see the result: `["Hello", "world", "test"]`
+5. Try: `text.split(' ')` - you see the difference!
 
-**Positive Tests (Happy Path)**
-```typescript
-it('should count words in simple text', () => {
-    const result = countWords('Hello world test');
-    assert.strictEqual(result, 3);
-});
-```
+### Watch Mode for Continuous Development
 
-**Edge Case Testing**
-```typescript
-it('should handle null and undefined input', () => {
-    assert.strictEqual(countWords(null as any), 0);
-    assert.strictEqual(countWords(undefined as any), 0);
-});
-```
+For test-driven development, use two terminals:
 
-**Data-Driven Tests**
-```typescript
-const testCases = [
-    { input: 'Hello world', expected: 2 },
-    { input: 'Hello    world', expected: 2 },
-    { input: 'Hello\nworld\ttest', expected: 3 }
-];
-
-testCases.forEach(({ input, expected }) => {
-    it(`should handle: "${input}"`, () => {
-        assert.strictEqual(countWords(input), expected);
-    });
-});
-```
-
-## Test-Patterns verstehen
-
-### Arrange-Act-Assert
-
-```typescript
-it('should trim whitespace from name', () => {
-    // Arrange: Testdaten vorbereiten
-    const name = '  Bob  ';
-    const expected = 'Hello Bob!';
-    
-    // Act: Funktion ausführen
-    const result = createGreeting(name);
-    
-    // Assert: Ergebnis prüfen
-    assert.strictEqual(result, expected);
-});
-```
-
-### Assertion-Typen
-
-```typescript
-// Primitive Gleichheit (Strings, Numbers, Booleans)
-assert.strictEqual(actual, expected);
-
-// Array/Objekt-Vergleiche
-assert.deepStrictEqual(actualArray, expectedArray);
-
-// Wahrheitswerte
-assert.ok(value);  // value ist truthy
-
-// Fehler-Erwartungen
-assert.throws(() => riskyFunction(), /Error pattern/);
-```
-
-## Extension manuell testen
-
-Die Extension stellt Kommandos bereit, die die getesteten Funktionen verwenden:
-
-### Verfügbare Kommandos
-
-1. **Hello World** (`demo.helloWorld`)
-   - Verwendet `createGreeting()` für personalisierte Begrüßung
-   - Test: Command Palette → "Hello World"
-
-2. **Count Words** (`demo.countWords`)
-   - Verwendet `countWords()` für Text-Analyse im aktiven Editor
-   - Test: Textdatei öffnen → Command Palette → "Count Words"
-
-**Command Palette**: `Ctrl+Shift+P` (Windows/Linux) oder `Cmd+Shift+P` (Mac)
-
-## Development Workflow
-
-### Test-Driven Development (TDD)
-
-1. **Red**: Test schreiben (schlägt fehl)
-2. **Green**: Minimale Implementierung (Test besteht)
-3. **Refactor**: Code verbessern mit Test-Sicherheitsnetz
-
-### Kontinuierliche Tests
-
+**Terminal 1 - Auto-Compile:**
 ```bash
-# Terminal 1: Watch-Modus für automatische Kompilierung
 yarn run watch
-
-# Terminal 2: Tests nach Code-Änderungen ausführen
-yarn run test
 ```
+This monitors your TypeScript files and compiles automatically on changes.
 
-## Troubleshooting
-
-### Tests werden nicht gefunden
-
-**Problem**: Test Runner zeigt keine Tests
-**Lösung**: 
+**Terminal 2 - Tests as needed:**
 ```bash
-yarn run compile  # TypeScript → JavaScript kompilieren
-ls out/test/      # Prüfen: .js Dateien existieren
+yarn run test:unit
 ```
 
-### Kompilierungsfehler
+**Workflow:**
+1. Change code in `src/utils.ts`
+2. Terminal 1 compiles automatically
+3. Run tests in Terminal 2
+4. Repeat the cycle
 
-**Problem**: `error TS2304: Cannot find name 'describe'`
-**Lösung**: `@types/mocha` installiert? `yarn install` ausführen
+## 🔵 Integration Tests with F5 - Testing VSCode APIs
 
-### Import-Probleme
+Integration tests are more complex, but just as elegant to handle with F5 as unit tests.
 
-**Problem**: `Cannot find module '../extension'`
-**Lösung**: 
-- Relative Pfade prüfen: `../extension` für `src/test/extension.test.ts`
-- Extension-Funktionen als `export` markiert?
+### Running Integration Tests: F5 → "Debug Integration Tests"
 
-### Assert-Fehler verstehen
+1. **Press F5**
+2. **Select "Debug Integration Tests"** from the dropdown list  
+3. **VSCode starts an Extension Host instance** (takes 10-15 seconds)
+4. **Your extension is tested in a real VSCode environment**
+
+**What happens in detail:**
+1. VSCode starts a special Extension Host instance
+2. Your extension is automatically loaded and activated
+3. A test workspace is opened (`test-workspace/`)
+4. Tests are executed in this real VSCode environment
+5. Results appear in the Debug Console
+
+**Typical output in Debug Console:**
+```
+Extension Integration Tests
+  Extension Lifecycle
+    ✓ should be present in VSCode extensions (45ms)
+    ✓ should activate successfully (123ms)
+  Command Registration
+    ✓ should register helloWorld command (89ms)
+    ✓ should execute helloWorld command without error (156ms)
+
+8 passing (12s)
+```
+
+**Command line as alternative:**
+```bash
+yarn run test:integration
+```
+
+### What Integration Tests Verify
+
+Open `src/test/integration/extension.test.ts` - here you see tests for:
+
+**Extension Loading:**
+Tests verify that your extension can be found and loaded by VSCode's extension system.
+
+**Command Registration:**
+Tests check that all commands defined in your package.json are properly registered and available in the Command Palette.
+
+**Real VSCode Operations:**
+Tests perform actual document operations, editor interactions, and workspace manipulations to ensure your extension works in real scenarios.
+
+### Debug Helper for Integration Tests
+
+When integration tests fail, use the debug test:
 
 ```bash
-AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-+ actual: 2
-- expected: 3
-```
-**Interpretation**: `actual` (2) vs. `expected` (3) - Logik oder Test-Erwartung prüfen
-
-## Best Practices
-
-### Testbare Funktionen schreiben
-
-```typescript
-// ✅ Gut: Reine Funktion, deterministisch
-export function processText(input: string): string {
-    return input.trim().toLowerCase();
-}
-
-// ❌ Schlecht: Externe Dependencies, Seiteneffekte
-function logAndProcess(input: string): string {
-    console.log(input);  // Seiteneffekt
-    vscode.window.showInformationMessage(input);  // VSCode-Dependency
-    return input.trim();
-}
+yarn run test:integration --grep "Extension Debug"
 ```
 
-### Test-Isolation
+This special test shows you all available extensions and helps with troubleshooting when your extension cannot be found.
 
+## 🐛 Mastering the Four F5 Modes - Your Most Important Tool
+
+The project comes equipped with four specialized launch configurations. Each serves a different purpose, and understanding this is crucial for efficient extension development.
+
+**Why F5 instead of command line?** F5 seamlessly integrates debugging into VSCode. You set breakpoints, see variables, and can step through code live - this is not possible with the command line.
+
+### 1. "Run Extension" - F5 → Experience Your Extension Live
+
+**When to use:** Test your extension as an end user would
+
+**How to do it:**
+1. **Press F5**
+2. **Select "Run Extension"** (usually pre-selected automatically)
+3. **A new VSCode instance opens** - this is the "Extension Development Host"
+
+**In the new VSCode instance you can:**
+- Press `Ctrl+Shift+P` → execute "Hello World"
+- Open a text file → `Ctrl+Shift+P` → execute "Count Words"  
+- Use your extension like a normal user would
+
+**Debugging during this:** Set breakpoints in `src/extension.ts`. When you execute commands in the new instance, the debugger stops in the original instance.
+
+**Practical tip:** Keep watch compilation running (`yarn run watch` in terminal), then code changes are automatically transferred to the new instance.
+
+### 2. "Debug Unit Tests" - F5 → Understand Business Logic
+
+**When to use:** A unit test fails or you are developing new functions
+
+**How to do it:**
+1. **Set breakpoints** in `src/test/unit/extension.test.ts` or `src/utils.ts`
+2. **Press F5**
+3. **Select "Debug Unit Tests"**
+4. **All unit tests run in debug mode**
+
+**What you immediately see:**
+- Tests run and stop at breakpoints
+- Variables Panel shows all variable values
+- Debug Console for live experiments
+
+**Why this is better than command line:** You can inspect variables, step through code line by line, and experiment live in the Debug Console.
+
+### 3. "Debug Single Unit Test File" - F5 → Focused Development
+
+**When to use:** You are working on specific tests and want no waiting time
+
+**How to do it:**
+1. **Open a test file** (e.g., `src/test/unit/extension.test.ts`)
+2. **Press F5**
+3. **Select "Debug Single Unit Test File"**
+4. **Only this file is tested** - much faster
+
+**Development workflow:**
+- Change a function in `src/utils.ts`
+- Switch to the corresponding test file
+- F5 → "Debug Single Unit Test File"
+- Immediate feedback on your changes
+
+### 4. "Debug Integration Tests" - F5 → Understand VSCode APIs
+
+**When to use:** Debug extension lifecycle or command registration
+
+**How to do it:**
+1. **Press F5**
+2. **Select "Debug Integration Tests"**
+3. **Wait 10-15 seconds** - complete VSCode environment is loaded
+4. **Breakpoints in integration tests work**
+
+**What happens:** A real VSCode instance starts, loads your extension, and runs tests. You can watch how commands are registered and the VSCode API is used.
+
+## 🔧 Practical Debugging Scenarios with F5
+
+The real strength lies in debugging actual problems. Here you learn typical scenarios and their solution via F5.
+
+### Scenario 1: A Unit Test Fails - F5 Shows You Why
+
+**Problem:** The test `should handle mixed whitespace correctly` shows this error:
+```
+AssertionError: Expected 3 but got 4
+```
+
+**Solution with F5:**
+1. **Open** `src/test/unit/extension.test.ts`
+2. **Set a breakpoint** before the `assert.strictEqual` line (click left of line number)
+3. **F5 → "Debug Unit Tests"**
+4. **When breakpoint is reached:** VSCode stops automatically
+5. **Look at Variables Panel:** You see `text`, `result`, `expected` with their current values
+6. **Use Debug Console:** Type `text.split(/\s+/)` and see the array
+7. **Identify problem:** The array has 4 instead of 3 elements
+
+**What you learn:** F5 makes invisible variable values immediately visible. Without debugging, you would be guessing.
+
+### Scenario 2: Extension Command Doesn't Work - F5 Shows the Flow
+
+**Problem:** The "Count Words" command shows an incorrect number.
+
+**Solution with F5:**
+1. **Open** `src/extension.ts`
+2. **Set a breakpoint** in the `countWords` command implementation
+3. **F5 → "Run Extension"** - new VSCode instance opens
+4. **In the new instance:** Open a text file with known content
+5. **Execute "Count Words"** (`Ctrl+Shift+P` → "Count Words")
+6. **Debugger stops automatically** in the original instance
+7. **Variables Panel:** You see the exact `text` content and `wordCount` value
+8. **Debug Console:** Test `text.trim().split(/\s+/).length` live
+
+**What you learn:** F5 shows you the exact data flow from VSCode API to your function.
+
+### Scenario 3: Extension Not Found - F5 Helps with Diagnosis
+
+**Problem:** Integration tests show "Extension not found".
+
+**Solution with F5:**
+1. **F5 → "Debug Integration Tests"**
+2. **Look at the Debug Console** during startup
+3. **You see messages like:**
+   ```
+   Loading extension from: /workspaces/vscode-extension-demo
+   Extension "demo" activation failed: [Error details]
+   ```
+4. **Set a breakpoint** in the debug test (`debug.test.ts`)
+5. **F5 → "Debug Integration Tests" with --grep "should list all available extensions"**
+6. **Variables Panel:** You see all available extension IDs
+7. **Identify problem:** Extension ID doesn't match `package.json`
+
+**What you learn:** F5 gives you detailed insights into the extension loading process.
+
+## 📊 Understanding Test Output
+
+### Unit Test Output
+
+**Successful tests:**
+```
+  Business Logic Unit Tests
+    isValidFilename()
+      ✓ should return true for valid filename (2ms)
+      ✓ should return false for empty filename (1ms)
+    
+  16 passing (23ms)
+```
+
+**Failed tests:**
+```
+  1) should count words with punctuation correctly
+  
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual: 6
+  - expected: 5
+```
+
+**Interpretation:** `actual` is what your function returned, `expected` is what the test expected.
+
+### Integration Test Output
+
+**VSCode Extension Host startup:**
+```
+Starting extension host with workspace folder: ./test-workspace
+Loading extension from: /workspaces/vscode-extension-demo
+```
+
+**Extension loading:**
+```
+Extension "demo" activated successfully
+Registered commands: demo.helloWorld, demo.countWords
+```
+
+**Test results:**
+```
+Extension Integration Tests
+  Extension Lifecycle
+    ✓ should be present in VSCode extensions (45ms)
+  Command Registration  
+    ✓ should register helloWorld command (123ms)
+```
+
+## 🎯 Development Workflows in Practice
+
+### Workflow 1: Develop New Function (TDD)
+
+1. **Write the test first:**
+   ```typescript
+   it('should validate email addresses', () => {
+       assert.strictEqual(isValidEmail('test@example.com'), true);
+       assert.strictEqual(isValidEmail('invalid-email'), false);
+   });
+   ```
+
+2. **Test fails** (function doesn't exist yet)
+
+3. **Implement the function:**
+   ```typescript
+   export function isValidEmail(email: string): boolean {
+       return email.includes('@') && email.includes('.');
+   }
+   ```
+
+4. **Test passes**
+
+5. **Refactor the implementation** (with test safety net)
+
+### Workflow 2: Bug Fixing
+
+1. **Reproduce the bug in a test**
+2. **Test fails** (bug confirmed)
+3. **Debug with breakpoints**
+4. **Fix the code**
+5. **Test passes** (bug fixed)
+
+### Workflow 3: Develop Extension Feature
+
+1. **Write unit tests for business logic**
+2. **Implement business logic**
+3. **Write integration tests for VSCode integration**
+4. **Implement VSCode commands/APIs**
+5. **Test manually in Extension Development Host**
+
+## 🔍 Advanced Debug Techniques
+
+### Using Debug Console Effectively
+
+During a debug session, you can execute live code in the Debug Console:
+
+```javascript
+// Inspect variable
+> filename
+"test<.txt"
+
+// Test functions  
+> isValidFilename("valid.txt")
+true
+
+// Understand regular expressions
+> /[<>:"/\\|?*]/.test("test<.txt")
+true
+
+// Analyze arrays
+> text.split(/\s+/)
+["Hello", "world", "test"]
+```
+
+### Conditional Breakpoints
+
+For complex debugging scenarios:
+
+1. **Right-click on breakpoint**
+2. **Select "Edit Breakpoint"**
+3. **Enter condition:** `filename.includes('<')`
+4. **Breakpoint stops only when condition is met**
+
+### Watch Expressions
+
+1. **Open Watch panel**
+2. **Click "+"**
+3. **Enter expression:** `text.length`
+4. **Value is continuously monitored**
+
+## 🎓 Common Learning Pitfalls and How to Avoid Them
+
+### Learning Pitfall 1: Unit Tests with VSCode Dependencies
+
+**Wrong:**
 ```typescript
-describe('Function Tests', () => {
-    // Keine shared state zwischen Tests
-    // Jeder Test soll unabhängig ausführbar sein
+// In unit test
+import { someFunction } from '../extension';  // ❌ Contains VSCode import
+```
+
+**Right:**
+```typescript
+// In unit test  
+import { someFunction } from '../utils';      // ✅ Only pure functions
+```
+
+**Why important:** Unit tests should be fast and independent.
+
+### Learning Pitfall 2: Integration Tests without Cleanup
+
+**Wrong:**
+```typescript
+it('should work with editor', async () => {
+    const doc = await vscode.workspace.openTextDocument({content: 'test'});
+    await vscode.window.showTextDocument(doc);
+    // ❌ Editor stays open for next test
 });
 ```
 
-### Aussagekräftige Test-Namen
-
+**Right:**
 ```typescript
-// ✅ Gut: Beschreibt Verhalten und Kontext
-it('should return false for filename with invalid characters', () => {
-
-// ❌ Schlecht: Vage Beschreibung
-it('should work correctly', () => {
+it('should work with editor', async () => {
+    const doc = await vscode.workspace.openTextDocument({content: 'test'});
+    await vscode.window.showTextDocument(doc);
+    
+    // Test logic here
+    
+    // ✅ Cleanup
+    await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+});
 ```
 
-## Nächste Schritte
+### Learning Pitfall 3: Debugging without Source Maps
 
-Nach Beherrschung der Unit Tests:
+If breakpoints don't work, check `tsconfig.json`:
+```json
+{
+  "compilerOptions": {
+    "sourceMap": true  // ✅ Must be activated
+  }
+}
+```
 
-1. **Integration Tests**: VSCode-API-Interaktion testen
-2. **End-to-End Tests**: Vollständige Workflows validieren
-3. **Mock/Stub-Patterns**: External Dependencies isolieren
-4. **Test Coverage**: Systematische Abdeckungs-Analyse
+## 🏆 Success Metrics: When Do You Master the System?
 
-## Weiterführende Ressourcen
+You master the system when you can:
 
-- **[Mocha Documentation](https://mochajs.org/)**: Test-Framework Details
-- **[Node.js Assert](https://nodejs.org/api/assert.html)**: Assertion-Bibliothek
-- **[TypeScript Testing](https://www.typescriptlang.org/docs/handbook/testing.html)**: TypeScript-spezifische Patterns
+1. **Switch between unit and integration tests without thinking**
+2. **Deliberately choose the right debug configuration for your problem**
+3. **Fluently use breakpoints, Variables Panel, and Debug Console**
+4. **Practice test-driven development**
+5. **Systematically debug extension problems**
